@@ -89,6 +89,24 @@ ausentes. Produce una redacción más fluida.
 cada campo mediante patrones explícitos. La redacción es menos elaborada,
 pero el resultado es reproducible y auditable.
 
+#### Dónde se ejecuta el modelo de lenguaje
+
+El modelo puede ejecutarse en un servicio remoto o en el propio equipo. La
+segunda alternativa, disponible mediante Ollama, resulta preferible en este
+dominio: la documentación procesada no abandona la máquina, de modo que la
+objeción de confidencialidad que pesa sobre cualquier servicio remoto queda
+resuelta por construcción y no por contrato.
+
+Puesta en marcha, por una única vez:
+
+1. Instalar Ollama desde https://ollama.com
+2. En una terminal: `ollama pull llama3.2:3b` (descarga de unos 2 GB)
+3. En el archivo `.env` del proyecto: `PROVEEDOR_LLM=ollama`
+
+No requiere clave de API ni medio de pago. Durante la defensa conviene
+mencionarlo: es el argumento que separa a este sistema de una consulta a un
+servicio público de inteligencia artificial.
+
 El segundo modo no es únicamente un respaldo ante la falta de conexión:
 funciona además como **verificación** del primero. Tras cada generación con
 modelo de lenguaje, el sistema contrasta el resultado contra la extracción
