@@ -42,8 +42,16 @@ from core.config import (
 MODO_CONECTADO = "conectado"
 MODO_SIN_CONEXION = "sin_conexion"
 
+# Modelo utilizado cuando no se especifica uno en la configuracion.
+#
+# Los proveedores renuevan su linea de modelos con frecuencia y retiran los
+# identificadores antiguos, de modo que un valor fijo en el codigo queda
+# desactualizado y la llamada falla con un error 404. Por ese motivo el
+# sistema provee `listar_modelos_disponibles`, que consulta al proveedor que
+# modelos admite la clave configurada, y el script de verificacion del
+# entorno informa el resultado.
 MODELOS_POR_DEFECTO = {
-    "google": "gemini-2.0-flash",
+    "google": "gemini-3.5-flash-lite",
     "anthropic": "claude-sonnet-4-5",
     "openai": "gpt-4o-mini",
 }
@@ -173,7 +181,86 @@ def consultar(prompt: str) -> RespuestaLLM:
                                 error="El proveedor devolvio una respuesta vacia.")
         return RespuestaLLM(texto, modelo, MODO_CONECTADO)
     except Exception as exc:
-        return RespuestaLLM("", modelo, MODO_SIN_CONEXION, error=str(exc))
+        return RespuestaLLM("", modelo, MODO_SIN_CONEXION,
+                            error=_describir_error(exc, proveedor, modelo))
+
+
+def _describir_error(exc: Exception, proveedor: str, modelo: str) -> str:
+    """
+    Traduce el error del proveedor a un mensaje accionable.
+
+    Un codigo 404 sobre el endpoint de generacion indica, casi siempre, que
+    el identificador del modelo no existe o no se encuentra habilitado para
+    la clave configurada, y no que el servicio no este disponible. Informarlo
+    como un fallo generico de conexion deja al usuario sin saber que el
+    problema se resuelve cambiando una linea de configuracion.
+    """
+    texto = str(exc)
+    minusculas = texto.lower()
+
+    if "404" in texto or "not found" in minusculas:
+        return (f"El modelo '{modelo}' no esta disponible para la clave "
+                f"configurada. Los proveedores retiran identificadores de "
+                f"modelo con frecuencia. Ejecute "
+                f"'python scripts/verificar_entorno.py --modelos' para "
+                f"conocer los modelos habilitados y consigne uno de ellos en "
+                f"MODELO_LLM dentro del archivo .env")
+
+    if "401" in texto or "403" in texto or "api key" in minusculas or "unauthorized" in minusculas:
+        return (f"La clave de API configurada para {proveedor} fue rechazada. "
+                f"Verifique su validez en el archivo .env")
+
+    if "429" in texto or "quota" in minusculas or "rate limit" in minusculas:
+        return (f"Se alcanzo el limite de uso del proveedor {proveedor}. "
+                f"Reintente en unos minutos.")
+
+    return texto
+
+
+def listar_modelos_disponibles() -> Tuple[List[str], str]:
+    """
+    Consulta al proveedor configurado que modelos admite la clave en uso.
+
+    Devuelve (lista de identificadores, mensaje). La lista se encuentra vacia
+    cuando el proveedor no admite la consulta o cuando esta no puede
+    completarse; en ese caso el mensaje explica el motivo.
+
+    Solo el proveedor Google expone un endpoint publico de enumeracion de
+    modelos. Para los restantes se remite a su documentacion.
+    """
+    proveedor, _modelo = detectar_proveedor()
+
+    if proveedor == "offline":
+        return [], "No hay clave de API configurada en el archivo .env"
+
+    if proveedor != "google":
+        return [], (f"El proveedor {proveedor} no expone un listado publico "
+                    f"de modelos. Consulte su documentacion oficial.")
+
+    try:
+        import requests
+        respuesta = requests.get(
+            "https://generativelanguage.googleapis.com/v1beta/models",
+            headers={"x-goog-api-key": CLAVE_API_LLM},
+            timeout=TIMEOUT_RED,
+        )
+        respuesta.raise_for_status()
+        datos = respuesta.json()
+    except Exception as exc:
+        return [], f"No fue posible consultar los modelos disponibles: {exc}"
+
+    modelos = []
+    for entrada in datos.get("models", []):
+        nombre = entrada.get("name", "").replace("models/", "")
+        metodos = entrada.get("supportedGenerationMethods", [])
+        if nombre and (not metodos or "generateContent" in metodos):
+            modelos.append(nombre)
+
+    if not modelos:
+        return [], ("El proveedor no informo modelos habilitados para "
+                    "generacion de contenido.")
+
+    return sorted(modelos), f"{len(modelos)} modelos habilitados."
 
 
 # ---------------------------------------------------------------------------

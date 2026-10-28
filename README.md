@@ -61,6 +61,19 @@ cp .env.example .env
 Google AI Studio ofrece un nivel gratuito suficiente para desarrollo:
 https://aistudio.google.com/apikey
 
+Los proveedores renuevan su línea de modelos y retiran los identificadores
+antiguos con frecuencia, de modo que el valor por defecto puede quedar
+desactualizado y la llamada fallar con un error 404. Para conocer los
+modelos habilitados para una clave determinada:
+
+```bash
+python scripts/verificar_entorno.py --modelos
+```
+
+El identificador obtenido se consigna en `MODELO_LLM` dentro del archivo
+`.env`. El sistema informa esta situación de manera explícita en la interfaz
+y continúa operando en modo determinista mientras tanto.
+
 ### Verificación del entorno
 
 ```bash

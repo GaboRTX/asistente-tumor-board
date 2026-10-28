@@ -10,6 +10,8 @@ Uso:
     python scripts/verificar_entorno.py
     python scripts/verificar_entorno.py --completo    (incluye el modelo de
                                                        embeddings y la API)
+    python scripts/verificar_entorno.py --modelos     (lista los modelos de
+                                                       lenguaje habilitados)
 
 La verificacion distingue entre condiciones que impiden la operacion y
 condiciones que unicamente degradan la calidad del resultado. El sistema
@@ -233,9 +235,9 @@ def verificar_reporte():
         error("La generacion del reporte fallo", f"{type(exc).__name__}: {exc}")
 
 
-def verificar_llm():
+def verificar_llm(listar: bool = False):
     seccion("7. Modelo de lenguaje")
-    from core.llm import detectar_proveedor
+    from core.llm import detectar_proveedor, listar_modelos_disponibles
 
     proveedor, modelo = detectar_proveedor()
     if proveedor == "offline":
@@ -244,8 +246,33 @@ def verificar_llm():
                     "reproducible y auditable pero produce resumenes menos "
                     "fluidos. Para habilitar el modelo de lenguaje, complete "
                     "CLAVE_API_LLM en el archivo .env")
-    else:
-        ok(f"Proveedor configurado: {proveedor}", f"Modelo: {modelo}")
+        return
+
+    ok(f"Proveedor configurado: {proveedor}", f"Modelo: {modelo}")
+
+    if not listar:
+        advertencia("No se verifico que el modelo configurado exista",
+                    "Ejecute este script con --modelos para consultar al "
+                    "proveedor que modelos admite la clave configurada.")
+        return
+
+    print(f"  {GRIS}Consultando los modelos habilitados...{FIN}")
+    modelos, mensaje = listar_modelos_disponibles()
+
+    if not modelos:
+        advertencia("No fue posible obtener el listado de modelos", mensaje)
+        return
+
+    ok(f"Modelos habilitados para la clave configurada: {len(modelos)}")
+    for nombre in modelos:
+        marca = "  <- configurado" if nombre == modelo else ""
+        print(f"         {nombre}{marca}")
+
+    if modelo not in modelos:
+        advertencia(f"El modelo configurado '{modelo}' no figura entre los "
+                    f"habilitados",
+                    "Consigne uno de los modelos listados en MODELO_LLM "
+                    "dentro del archivo .env")
 
 
 def verificar_embeddings(completo: bool):
@@ -298,6 +325,7 @@ def verificar_api_ensayos(completo: bool):
 
 def main():
     completo = "--completo" in sys.argv
+    listar_modelos = "--modelos" in sys.argv or completo
 
     print("=" * 72)
     print("  VERIFICACION DEL ENTORNO")
@@ -305,8 +333,9 @@ def main():
     print("=" * 72)
     if not completo:
         print(f"{GRIS}  Modo rapido. Ejecute con --completo para verificar "
-              f"tambien\n  el modelo de embeddings y la conexion a "
-              f"ClinicalTrials.gov.{FIN}")
+              f"tambien el modelo\n  de embeddings y la conexion a "
+              f"ClinicalTrials.gov, o con --modelos\n  para listar los "
+              f"modelos de lenguaje habilitados para su clave.{FIN}")
 
     verificar_python()
     verificar_dependencias()
@@ -314,7 +343,7 @@ def main():
     verificar_base_datos()
     verificar_pipeline()
     verificar_reporte()
-    verificar_llm()
+    verificar_llm(listar_modelos)
     verificar_embeddings(completo)
     verificar_api_ensayos(completo)
 

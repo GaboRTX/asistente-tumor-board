@@ -167,3 +167,48 @@ def test_un_resumen_consistente_no_genera_advertencias(fragmentos_caso):
     campos = [CampoResumen("perfil_molecular", "Perfil molecular",
                            perfil.como_texto(), fuentes=[{"etiqueta": "x"}])]
     assert verificar_consistencia(campos, perfil) == []
+
+
+# ---------------------------------------------------------------------------
+# Diagnostico de la configuracion del modelo de lenguaje
+# ---------------------------------------------------------------------------
+
+def test_el_error_de_modelo_inexistente_es_accionable():
+    """
+    Un codigo 404 indica que el identificador del modelo no esta habilitado,
+    no que el servicio este caido. El mensaje debe orientar sobre como
+    resolverlo en lugar de reproducir el error del proveedor.
+    """
+    from core.llm import _describir_error
+
+    mensaje = _describir_error(
+        Exception("404 Client Error: Not Found for url: https://ejemplo"),
+        "google", "modelo-inexistente")
+
+    assert "modelo-inexistente" in mensaje
+    assert "MODELO_LLM" in mensaje
+    assert "verificar_entorno" in mensaje
+
+
+def test_el_error_de_credencial_se_distingue_del_de_modelo():
+    from core.llm import _describir_error
+
+    mensaje = _describir_error(Exception("401 Unauthorized"), "google", "m")
+    assert "clave" in mensaje.lower()
+    assert "MODELO_LLM" not in mensaje
+
+
+def test_el_error_de_cuota_se_identifica():
+    from core.llm import _describir_error
+
+    mensaje = _describir_error(Exception("429 Too Many Requests"), "google", "m")
+    assert "limite" in mensaje.lower()
+
+
+def test_sin_clave_no_se_consultan_modelos():
+    """Sin credencial configurada no corresponde intentar la consulta."""
+    from core.llm import listar_modelos_disponibles
+
+    modelos, mensaje = listar_modelos_disponibles()
+    assert modelos == []
+    assert ".env" in mensaje

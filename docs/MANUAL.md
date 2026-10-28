@@ -23,7 +23,9 @@ Proyecto Integrador — IFTS N.° 24 — Gabriel Marquez
 Realizar **con anticipación y con conexión a internet disponible**:
 
 - [ ] Ejecutar `python scripts/verificar_entorno.py --completo` y confirmar
-      que no se reportan errores.
+      que no se reportan errores. La verificación completa incluye el
+      listado de modelos de lenguaje habilitados, de modo que permite
+      detectar un identificador de modelo retirado por el proveedor.
 - [ ] Confirmar que la verificación del modelo de embeddings resulta
       satisfactoria. La primera carga descarga aproximadamente 470 MB; una
       vez descargado el modelo queda almacenado localmente.
@@ -501,6 +503,17 @@ python scripts/construir_cache_ensayos.py               # muestra de referencia
 
 Indica que no hay clave de API configurada o que la llamada falló. Verificar
 el archivo `.env`. La pantalla de Inicio informa el proveedor detectado.
+
+Si el mensaje menciona un error 404 sobre el modelo, el identificador
+configurado no está habilitado para esa clave. Los proveedores retiran
+modelos con frecuencia. Para conocer los disponibles:
+
+```bash
+python scripts/verificar_entorno.py --modelos
+```
+
+Luego consignar uno de los identificadores listados en `MODELO_LLM` dentro
+del archivo `.env`.
 
 ### Un PDF no se procesa
 
