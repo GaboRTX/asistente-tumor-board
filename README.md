@@ -17,8 +17,10 @@ el sistema:
 
 1. Genera un **resumen estructurado** del caso, citando para cada campo el
    fragmento documental que lo respalda.
-2. Extrae el **perfil molecular** (IDH, 1p/19q, MGMT, ATRX, TERT, EGFR, TP53)
-   mediante reglas explícitas y auditables.
+2. Extrae el **perfil molecular** (IDH, 1p/19q, MGMT, ATRX, TERT, EGFR, TP53,
+   H3, CDKN2A/B y el patrón cromosómico +7/-10) mediante reglas explícitas y
+   auditables, conforme a los biomarcadores que las guías del College of
+   American Pathologists, AANP, AMP y SNO establecen para gliomas difusos.
 3. Propone **estudios clínicos** de ClinicalTrials.gov compatibles con ese
    perfil, informando el criterio que originó cada correspondencia.
 4. Registra las **correcciones** de los profesionales y las incorpora, previa
@@ -135,7 +137,7 @@ una sola línea de la lógica de negocio.
 pytest tests/ -v
 ```
 
-La suite comprende 116 pruebas distribuidas en cinco módulos. Varias de ellas
+La suite comprende 146 pruebas distribuidas en cinco módulos. Varias de ellas
 corresponden a defectos efectivamente detectados durante el desarrollo y se
 conservan como pruebas de regresión, entre ellos:
 
@@ -149,6 +151,13 @@ conservan como pruebas de regresión, entre ellos:
 - La verificación de contradicciones comparaba por inclusión de subcadena,
   con lo que `no mutado` contenía `mutado` y la contradicción nunca se
   detectaba.
+- Una oración repartida en dos renglones, como `ganancia del cromosoma 7 y
+  perdida del` seguido de `cromosoma 10`, no se reconocía como una única
+  afirmación, de modo que el marcador quedaba sin detectar.
+- En los criterios de elegibilidad, una ventana de contexto que atravesaba la
+  coma atribuía a un marcador el estado informado para otro: en `H3 K27M
+  mutant, IDH wild-type` el estado wild-type se asignaba a H3, lo que
+  descartaba el estudio para un paciente que sí reunía las condiciones.
 
 ---
 
@@ -198,6 +207,34 @@ respaldo:
 
 La degradación **nunca es silenciosa**: el sistema informa en la interfaz qué
 modo está utilizando y por qué motivo descendió al modo de respaldo.
+
+### Casos de demostración
+
+El proyecto incluye ocho casos sintéticos que cubren las entidades
+diagnósticas más frecuentes en el adulto y tres situaciones que el sistema
+debe resolver correctamente:
+
+| Caso | Entidad | Situación que verifica |
+|---|---|---|
+| CASO-001 | Astrocitoma IDH mutante, grado 3 | Perfil molecular completo |
+| CASO-002 | Glioblastoma IDH wild-type, grado 4 | Criterios moleculares de grado 4 |
+| CASO-003 | Oligodendroglioma 1p/19q codelecionado, grado 2 | Lesión sin realce |
+| CASO-004 | Glioma difuso de alto grado | Documentación incompleta y estudio no valorable |
+| CASO-005 | Glioblastoma IDH wild-type | Redacción abreviada |
+| CASO-006 | Glioma difuso de la línea media, H3 K27 alterado | Marcador que define la entidad |
+| CASO-007 | Astrocitoma IDH mutante en seguimiento | Evaluación de respuesta según RANO |
+| CASO-008 | Glioblastoma con aumento del realce | Pseudoprogresión dentro del campo irradiado |
+
+La estructura y la terminología de los documentos siguen las guías de EANO,
+el conjunto de datos de diagnóstico integrado del ICCR, las recomendaciones
+de biomarcadores del College of American Pathologists junto con AANP, AMP y
+SNO, y los criterios RANO para el informe de imágenes.
+
+Los dos últimos casos corresponden a situaciones que se presentan
+efectivamente en una junta multidisciplinaria y que el sistema no resuelve
+por sí mismo: la evaluación de respuesta y la distinción entre progresión y
+pseudoprogresión son decisiones del equipo tratante. El sistema se limita a
+reunir y a citar la información sobre la que esa decisión se apoya.
 
 ### Tratamiento de los datos
 

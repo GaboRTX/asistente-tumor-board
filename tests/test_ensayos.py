@@ -155,3 +155,45 @@ def test_el_resultado_informa_el_criterio_de_correspondencia():
     resultado = evaluar_correspondencia(ensayo, [("IDH", "mutado")])
     assert "IDH" in resultado.coincidencias[0]
     assert "mutado" in resultado.coincidencias[0]
+
+
+# ---------------------------------------------------------------------------
+# Atribucion del estado al marcador correcto
+# ---------------------------------------------------------------------------
+
+def test_el_estado_de_un_marcador_no_se_atribuye_a_otro():
+    """
+    Regresion. Los criterios enumeran varios marcadores en una misma oracion.
+    En "H3 K27M mutant, IDH wild-type" el estado wild-type corresponde a IDH;
+    atribuirlo a H3 descarta el estudio para un paciente que si reune las
+    condiciones de ingreso.
+    """
+    ensayo = ensayo_con(
+        "Inclusion: histologically confirmed diffuse midline glioma, "
+        "H3 K27M mutant, IDH wild-type. Exclusion: H3 wild-type tumors.")
+    resultado = evaluar_correspondencia(
+        ensayo, [("IDH", "no mutado"), ("H3", "alterado")])
+
+    assert resultado.elegible
+    assert any("H3" in c for c in resultado.coincidencias)
+    assert resultado.exclusiones == []
+
+
+def test_correspondencia_por_delecion_de_cdkn2a():
+    ensayo = ensayo_con(
+        "Inclusion: IDH mutant astrocytoma with homozygous deletion of "
+        "CDKN2A/B. Exclusion: CDKN2A intact.")
+    resultado = evaluar_correspondencia(
+        ensayo, [("CDKN2A/B", "delecion homocigota presente")])
+    assert resultado.elegible
+    assert resultado.coincidencias
+
+
+def test_correspondencia_por_patron_cromosomico():
+    ensayo = ensayo_con(
+        "Inclusion: recurrent glioblastoma with gain of chromosome 7 and "
+        "loss of chromosome 10.")
+    resultado = evaluar_correspondencia(
+        ensayo, [("Cromosomas 7/10", "alterado")])
+    assert resultado.elegible
+    assert resultado.coincidencias

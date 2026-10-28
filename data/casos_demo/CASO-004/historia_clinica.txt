@@ -1,17 +1,40 @@
 HISTORIA CLINICA - CASO-004
 Documento sintetico de demostracion. No corresponde a un paciente real.
 
-Paciente de 58 años, sexo masculino.
+DATOS DEL PACIENTE
+Varon de 58 anios, empleado administrativo.
 
-MOTIVO DE CONSULTA: Deficit motor de instalacion progresiva en hemicuerpo
-derecho, de aproximadamente dos meses de evolucion.
+MOTIVO DE CONSULTA
+Deficit motor progresivo en hemicuerpo derecho de aproximadamente dos
+meses de evolucion.
 
-ENFERMEDAD ACTUAL: Se constata hemiparesia derecha a predominio braquial
-(fuerza 3/5) y disartria leve. Sin compromiso del sensorio.
-Escala de Karnofsky: 70.
+ENFERMEDAD ACTUAL
+Debilidad de instalacion progresiva, inicialmente en miembro superior
+derecho, con extension posterior al miembro inferior homolateral. Se agrega
+dificultad en la articulacion de la palabra en las ultimas tres semanas.
 
-ANTECEDENTES PERSONALES: Hipertension arterial. Extabaquista.
+EXAMEN NEUROLOGICO AL INGRESO
+Vigil, orientado. Disartria leve. Hemiparesia derecha a predominio
+braquial, con fuerza 3/5 en miembro superior y 4/5 en miembro inferior.
+Reflejos osteotendinosos exaltados del lado derecho. Babinski derecho.
+Escala funcional de Karnofsky: 70.
 
-EVOLUCION: Se realiza biopsia estereotaxica de la lesion dada su localizacion
-en area elocuente. Pendiente definicion de conducta terapeutica en junta
-multidisciplinaria.
+ANTECEDENTES PERSONALES
+Hipertension arterial en tratamiento. Extabaquista.
+Sin antecedentes oncologicos.
+
+EVOLUCION
+Dada la localizacion de la lesion en area elocuente y la extension al
+tracto corticoespinal evidenciada por tractografia, se decide en ateneo
+conjunto con neurocirugia la realizacion de biopsia estereotaxica en lugar
+de reseccion.
+
+Se obtienen tres cilindros de biopsia. El estudio intraoperatorio por
+congelacion informa glioma de alto grado.
+
+Pendiente de definicion de conducta terapeutica en junta multidisciplinaria,
+a la espera de la ampliacion de estudios moleculares.
+
+SITUACION ACTUAL
+Karnofsky 70. Dexametasona 4 mg cada 12 horas con mejoria parcial del
+deficit motor.

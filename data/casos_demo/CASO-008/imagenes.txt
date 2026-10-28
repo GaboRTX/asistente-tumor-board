@@ -1,0 +1,49 @@
+INFORME DE RESONANCIA MAGNETICA - CASO-008
+Documento sintetico de demostracion.
+Estudio de control posterior a quimiorradioterapia.
+
+ESTUDIO
+Resonancia magnetica de encefalo sin y con gadolinio. Protocolo de
+neuro-oncologia con perfusion. Comparacion con estudio posoperatorio
+realizado hace 4 meses y con estudio previo al inicio de la radioterapia.
+
+HALLAZGOS
+Cavidad de reseccion temporooccipital derecha.
+
+Lesion diana realzante en el margen anterior de la cavidad:
+Estudio previo: 14 x 11 mm. Producto de diametros: 154 mm2.
+Estudio actual: 21 x 16 mm. Producto de diametros: 336 mm2.
+Incremento del producto de diametros perpendiculares: 118%.
+
+El incremento del realce se localiza integramente dentro del volumen
+irradiado, en la region de alta dosis correspondiente a la isodosis del
+95%.
+
+Alteracion de senal no realzante en T2/FLAIR perilesional con leve
+incremento respecto del estudio previo.
+
+No se identifican lesiones nuevas fuera del campo de irradiacion.
+
+En difusion, valores de coeficiente de difusion aparente elevados en el
+sector de nuevo realce, sin restriccion.
+En perfusion, volumen sanguineo cerebral relativo disminuido en el sector
+de nuevo realce respecto del parenquima contralateral, con valor de 0,9.
+
+CONSIDERACIONES PARA LA EVALUACION DE RESPUESTA
+El incremento del realce se produce dentro de las 12 semanas posteriores a
+la finalizacion de la radioterapia y se localiza por completo dentro del
+campo de alta dosis.
+Conforme a los criterios RANO, en esta ventana temporal la progresion
+solo puede establecerse radiologicamente si aparece realce nuevo por fuera
+del campo de irradiacion, circunstancia que no se verifica en el presente
+estudio.
+Los hallazgos de perfusion, con volumen sanguineo cerebral relativo
+disminuido, y de difusion, sin restriccion, resultan mas compatibles con
+cambios posterapeuticos que con progresion tumoral.
+
+CONCLUSION
+Aumento del realce dentro del campo de alta dosis, en ventana temporal y
+con patron de perfusion compatibles con pseudoprogresion. No corresponde
+establecer progresion segun criterios RANO en el presente estudio.
+Se sugiere resonancia de confirmacion en 4 a 8 semanas antes de modificar
+la conducta terapeutica.

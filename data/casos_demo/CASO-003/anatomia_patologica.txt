@@ -1,22 +1,39 @@
 INFORME ANATOMOPATOLOGICO - CASO-003
 Documento sintetico de demostracion.
 
-MATERIAL REMITIDO: Pieza de reseccion tumoral, lobulo temporal izquierdo.
+MATERIAL REMITIDO
+Pieza de reseccion tumoral, lobulo temporal izquierdo.
 
-DESCRIPCION MICROSCOPICA: Proliferacion glial de densidad celular moderada,
-constituida por celulas de nucleos redondeados y regulares, con halo
-perinuclear claro que confiere el aspecto clasico en huevo frito.
+DESCRIPCION MACROSCOPICA
+Fragmento de tejido de 3,2 x 2,5 x 2,0 cm, de consistencia blanda, con
+areas de aspecto gelatinoso y focos calcificados al corte.
 
-Se observa red capilar ramificada de disposicion delicada. Actividad mitotica
-escasa, con 1 mitosis por 10 campos de gran aumento. No se identifica
-proliferacion microvascular ni necrosis.
+DESCRIPCION MICROSCOPICA
+Proliferacion glial de densidad celular moderada, constituida por celulas
+de nucleos redondeados y regulares con halo perinuclear claro, que confiere
+el aspecto clasico descripto como en huevo frito.
 
-INMUNOHISTOQUIMICA:
-- GFAP: positivo focal.
-- IDH1 R132H: positivo.
-- ATRX: expresion nuclear conservada.
-- p53: sin sobreexpresion.
-- Ki-67: indice proliferativo del 4%.
+Red capilar ramificada de disposicion delicada, en patron de alambre de
+gallinero. Se identifican microcalcificaciones dispersas.
+Actividad mitotica escasa, con 1 mitosis por 10 campos de gran aumento.
+No se identifica proliferacion microvascular ni necrosis.
 
-DIAGNOSTICO: Oligodendroglioma, IDH mutado y con codeleccion 1p/19q,
-grado 2 de la OMS (Clasificacion OMS 2021).
+INMUNOHISTOQUIMICA
+GFAP: positivo focal.
+IDH1 R132H: positivo.
+ATRX: expresion nuclear conservada.
+p53: sin sobreexpresion.
+Ki-67: indice proliferativo del 4%.
+
+DIAGNOSTICO INTEGRADO (formato en capas segun ICCR)
+Diagnostico integrado: Oligodendroglioma IDH mutante y 1p/19q
+codelecionado, grado 2 de la OMS.
+Apariencia histologica: glioma difuso con morfologia oligodendroglial y
+microcalcificaciones.
+Grado OMS: 2.
+Parametros moleculares: mutacion IDH1 R132H; codelecion 1p/19q presente;
+ATRX conservado; TP53 sin mutacion; promotor de TERT mutado C228T;
+mutacion de CIC.
+
+Clasificacion de la OMS de los Tumores del Sistema Nervioso Central,
+quinta edicion, 2021.

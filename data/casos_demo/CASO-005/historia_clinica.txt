@@ -1,8 +1,11 @@
 CASO-005 - HC
 Documento sintetico de demostracion.
 
-Masculino 49a. Consulta x cefalea + vomitos de 6 sem. Examen: papiledema
+Masculino 49a. Consulta x cefalea + vomitos de 6 sem. Ex: papiledema
 bilateral, sin deficit motor. KPS 80.
-Ant: sin antecedentes de jerarquia. No fuma. No alergias.
-Se opera: reseccion parcial (craneotomia occipital izq). Post-op sin cambios.
-Luego RT 60 Gy/30 fx + TMZ concomitante. Actualmente en TMZ adyuvante, 2do ciclo.
+Ant: s/particulares. No fuma. No alergias.
+Qx: reseccion parcial (craneotomia occipital izq). Post-op s/cambios.
+RM post-op 48hs: residuo realzante 12 x 9 mm.
+Luego RT 60 Gy/30 fx + TMZ concomitante 75 mg/m2.
+Actualmente TMZ adyuvante 150 mg/m2, 2do ciclo. Tolerancia OK.
+Dexa 4 mg/d en descenso. Levetiracetam 1 g c/12h.

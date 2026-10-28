@@ -1,0 +1,38 @@
+INFORME DE RESONANCIA MAGNETICA - CASO-007
+Documento sintetico de demostracion.
+Estudio de seguimiento con evaluacion de respuesta.
+
+ESTUDIO
+Resonancia magnetica de encefalo sin y con gadolinio. Protocolo de
+neuro-oncologia. Comparacion con estudio basal posterior a radioterapia,
+realizado hace 11 meses.
+
+HALLAZGOS
+Cavidad de reseccion frontal derecha, de bordes regulares, sin cambios
+respecto del estudio previo.
+
+Lesion diana realzante en el margen posteromedial de la cavidad:
+Estudio basal: 22 x 16 mm. Producto de diametros: 352 mm2.
+Estudio actual: 12 x 9 mm. Producto de diametros: 108 mm2.
+Reduccion del producto de diametros perpendiculares: 69,3%.
+
+Alteracion de senal no realzante en T2/FLAIR periferica a la cavidad, sin
+cambios significativos respecto del estudio previo.
+
+No se identifican nuevas lesiones realzantes ni a distancia.
+Sin efecto de masa. Linea media centrada.
+En difusion no se observan areas de restriccion.
+En perfusion, volumen sanguineo cerebral relativo disminuido en el sector
+realzante respecto del estudio basal.
+
+EVALUACION DE RESPUESTA SEGUN CRITERIOS RANO
+Reduccion del producto de diametros perpendiculares del 69,3%, superior al
+umbral del 50% requerido para respuesta parcial.
+Sin aparicion de nuevas lesiones.
+Alteracion no realzante en T2/FLAIR estable.
+La paciente no recibe corticoides.
+Estado clinico estable o mejorado.
+
+CONCLUSION
+Respuesta parcial segun criterios RANO. Se sugiere confirmacion en estudio
+de control a las 4 semanas y continuidad del seguimiento imagenologico.

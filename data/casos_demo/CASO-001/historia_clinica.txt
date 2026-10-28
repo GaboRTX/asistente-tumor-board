@@ -1,27 +1,52 @@
 HISTORIA CLINICA - CASO-001
 Documento sintetico de demostracion. No corresponde a un paciente real.
 
-Paciente de 41 años, sexo masculino, diestro.
+DATOS DEL PACIENTE
+Varon de 41 anios, diestro. Docente de nivel medio.
 
-MOTIVO DE CONSULTA: Cefalea holocraneana de tres meses de evolucion, progresiva,
-de predominio matinal, asociada en el ultimo mes a dos episodios de crisis
-convulsivas tonico-clonicas generalizadas.
+MOTIVO DE CONSULTA
+Cefalea holocraneana de tres meses de evolucion y dos episodios de crisis
+tonico-clonicas generalizadas en el ultimo mes.
 
-ENFERMEDAD ACTUAL: Consulta por guardia tras el segundo episodio convulsivo.
-Al examen neurologico se constata leve hemiparesia braquial derecha (fuerza 4/5)
-y dificultad en la denominacion. No presenta alteracion del sensorio.
-Escala de Karnofsky al ingreso: 80.
+ENFERMEDAD ACTUAL
+Cefalea progresiva, de predominio matinal, que cede parcialmente con
+analgesicos comunes. Consulta por guardia tras el segundo episodio
+convulsivo, presenciado por familiares, de aproximadamente dos minutos de
+duracion con periodo posictal de treinta minutos.
 
-ANTECEDENTES PERSONALES: Hipertension arterial en tratamiento con enalapril.
-Tabaquista de 15 paquetes/año, cesado hace 4 años. Niega alergias medicamentosas.
-Sin antecedentes oncologicos previos.
+EXAMEN NEUROLOGICO AL INGRESO
+Vigil, orientado en tiempo y espacio. Lenguaje con dificultad leve en la
+denominacion, sin parafasias. Pares craneales sin particularidades. Fuerza
+4/5 en miembro superior derecho, 5/5 en el resto. Sensibilidad conservada.
+Sin signos meningeos. Fondo de ojo sin edema de papila.
+Escala funcional de Karnofsky: 80.
+Escala NANO: marcha 0, fuerza 1, ataxia 0, sensibilidad 0, campo visual 0,
+lenguaje 1, nivel de conciencia 0, comportamiento 0.
 
-ANTECEDENTES FAMILIARES: Madre con carcinoma de mama a los 62 años.
-Sin antecedentes de tumores del sistema nervioso central.
+ANTECEDENTES PERSONALES
+Hipertension arterial en tratamiento con enalapril 10 mg por dia.
+Extabaquista, 15 paquetes/anio, cesado hace 4 anios.
+Sin alergias medicamentosas conocidas. Sin antecedentes oncologicos.
 
-EVOLUCION: Se realiza exeresis macroscopicamente completa de la lesion mediante
-craneotomia frontal izquierda guiada por neuronavegacion. Buena evolucion
-posoperatoria, sin nuevo deficit focal. Karnofsky posoperatorio: 90.
-Posteriormente inicia radioterapia conformada 59.4 Gy en 33 fracciones,
-seguida de temozolomida adyuvante segun esquema estandar, completando 6 ciclos.
-Actualmente en seguimiento, asintomatico.
+ANTECEDENTES FAMILIARES
+Madre con carcinoma de mama a los 62 anios. Sin antecedentes de tumores
+del sistema nervioso central.
+
+EVOLUCION Y TRATAMIENTO
+Se realiza exeresis macroscopicamente completa mediante craneotomia frontal
+izquierda guiada por neuronavegacion, con monitoreo neurofisiologico
+intraoperatorio. Sin complicaciones. Resonancia de control dentro de las 48
+horas posoperatorias sin lesion residual medible ni restriccion en difusion.
+Karnofsky posoperatorio: 90.
+
+Inicia radioterapia conformada a las 4 semanas de la cirugia, 59,4 Gy en 33
+fracciones de 1,8 Gy sobre volumen blanco con margen clinico de 1,5 cm.
+Continua con temozolomida adyuvante 150 a 200 mg/m2, cinco dias cada 28,
+completando 12 ciclos segun esquema CATNON. Buena tolerancia hematologica,
+con trombocitopenia grado 1 transitoria en el ciclo 7.
+
+Tratamiento anticonvulsivante con levetiracetam 1000 mg cada 12 horas, sin
+nuevas crisis desde el inicio.
+
+SITUACION ACTUAL
+Asintomatico. Karnofsky 90. En seguimiento con resonancia cada 3 meses.

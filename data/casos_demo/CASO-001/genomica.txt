@@ -1,19 +1,31 @@
 INFORME DE SECUENCIACION GENOMICA - CASO-001
 Documento sintetico de demostracion.
 
-METODO: Secuenciacion de nueva generacion (NGS), panel dirigido de tumores
-del sistema nervioso central. Analisis de metilacion por pirosecuenciacion.
+MUESTRA
+Tejido tumoral incluido en parafina. Porcentaje de celularidad tumoral
+estimado: 70%.
 
-RESULTADOS:
-- IDH1: mutacion p.R132H detectada (variante patogenica).
-- IDH2: no se detectan variantes.
-- Codeleccion 1p/19q: ausente. Se conserva material en ambos brazos cromosomicos.
-- Promotor de MGMT: metilado. Nivel de metilacion 42%.
-- ATRX: mutacion con perdida de funcion.
-- TP53: mutacion p.R273C detectada.
-- Promotor de TERT: no se detecta mutacion.
-- EGFR: sin amplificacion.
-- CDKN2A/B: sin delecion homocigota.
+METODOLOGIA
+Secuenciacion de nueva generacion, panel dirigido de tumores del sistema
+nervioso central (523 genes). Analisis de metilacion del promotor de MGMT
+por pirosecuenciacion. Estudio de 1p/19q por hibridacion in situ
+fluorescente.
 
-INTERPRETACION: Perfil molecular compatible con astrocitoma IDH mutado.
-La ausencia de delecion homocigota de CDKN2A/B es consistente con grado 3.
+RESULTADOS
+IDH1: mutacion p.R132H (c.395G>A) detectada. Fraccion alelica 38%.
+IDH2: no se detectan variantes en el codon 172.
+Codelecion 1p/19q: ausente. Se conserva material genetico en ambos brazos
+cromosomicos.
+Promotor de MGMT: metilado. Nivel de metilacion 42%.
+ATRX: mutacion p.R1426* con perdida de funcion.
+TP53: mutacion p.R273C detectada. Fraccion alelica 41%.
+Promotor de TERT: no se detecta mutacion en las posiciones C228T ni C250T.
+EGFR: sin amplificacion.
+CDKN2A/B: sin delecion homocigota.
+H3F3A: sin mutacion en K27 ni en G34.
+
+INTERPRETACION
+Perfil molecular compatible con astrocitoma IDH mutante. La ausencia de
+delecion homocigota de CDKN2A/B es consistente con el grado 3 asignado por
+histologia. El estado metilado del promotor de MGMT se asocia a mayor
+sensibilidad a agentes alquilantes.

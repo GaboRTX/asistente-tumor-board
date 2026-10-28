@@ -9,7 +9,36 @@ from core.ingesta import Fragmento, fragmentar, normalizar, procesar_documentos
 # --- normalizacion ----------------------------------------------------------
 
 def test_normalizar_unifica_saltos_de_linea():
-    assert normalizar("linea1\r\nlinea2\rlinea3") == "linea1\nlinea2\nlinea3"
+    """Los retornos de carro se unifican al salto de linea estandar."""
+    # Se emplean lineas con mayuscula inicial para que no las reuna la
+    # logica de reconstruccion de parrafos, que se verifica aparte.
+    assert normalizar("Linea1\r\nLinea2\rLinea3") == "Linea1\nLinea2\nLinea3"
+
+
+def test_normalizar_reune_oracion_partida_en_dos_renglones():
+    """
+    Regresion. Los documentos exportados con ancho de renglon fijo parten
+    oraciones a la mitad. Si no se reunen, los marcadores expresados a
+    caballo del salto no se detectan.
+    """
+    texto = normalizar("ganancia del cromosoma 7 y perdida del\ncromosoma 10.")
+    assert texto == "ganancia del cromosoma 7 y perdida del cromosoma 10."
+
+
+def test_normalizar_preserva_los_encabezados():
+    """Una linea siguiente con mayuscula inicial no continua la anterior."""
+    texto = normalizar("RESULTADOS\nIDH1: mutacion detectada.")
+    assert texto == "RESULTADOS\nIDH1: mutacion detectada."
+
+
+def test_normalizar_preserva_los_elementos_de_enumeracion():
+    texto = normalizar("Marcadores evaluados\n- idh1 mutado\n- mgmt metilado")
+    assert texto.count("\n") == 2
+
+
+def test_normalizar_no_reune_tras_punto():
+    texto = normalizar("Primera oracion.\nsegunda linea")
+    assert "\n" in texto
 
 
 def test_normalizar_colapsa_espacios_repetidos():

@@ -1,0 +1,39 @@
+HISTORIA CLINICA - CASO-006
+Documento sintetico de demostracion. No corresponde a un paciente real.
+
+DATOS DEL PACIENTE
+Varon de 28 anios, estudiante universitario.
+
+MOTIVO DE CONSULTA
+Diplopia y ataxia de la marcha de seis semanas de evolucion.
+
+ENFERMEDAD ACTUAL
+Vision doble binocular horizontal, de instalacion progresiva, con posterior
+agregado de inestabilidad en la marcha y disfagia leve para liquidos.
+
+EXAMEN NEUROLOGICO AL INGRESO
+Vigil, orientado. Paresia del VI par craneal izquierdo. Nistagmo horizontal
+en la mirada lateral. Ataxia de tronco con marcha de base amplia.
+Reflejo nauseoso disminuido. Fuerza 5/5 en los cuatro miembros.
+Escala funcional de Karnofsky: 70.
+Escala NANO: marcha 2, ataxia 2, resto de los dominios sin alteracion.
+
+ANTECEDENTES PERSONALES
+Sin antecedentes de relevancia. Sin medicacion habitual.
+
+EVOLUCION Y TRATAMIENTO
+Dada la localizacion protuberancial de la lesion, se desestima la reseccion.
+Se realiza biopsia estereotaxica guiada por neuronavegacion, con obtencion
+de material representativo y sin complicaciones.
+
+Inicia radioterapia focal 54 Gy en 30 fracciones de 1,8 Gy.
+Se indica temozolomida concomitante, si bien se consigna en la discusion
+del caso que el beneficio de los agentes alquilantes en esta entidad no
+se encuentra establecido con el mismo nivel de evidencia que en el
+glioblastoma IDH wild-type.
+
+Dexametasona 8 mg por dia con mejoria parcial de la diplopia.
+
+SITUACION ACTUAL
+Karnofsky 70. En curso de radioterapia. Evaluacion de deglucion por
+fonoaudiologia con indicacion de dieta de consistencia modificada.

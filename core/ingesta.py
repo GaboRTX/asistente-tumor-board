@@ -117,7 +117,45 @@ def normalizar(texto: str) -> str:
     texto = re.sub(r"(\w)-\n(\w)", r"\1\2", texto)
 
     lineas = [linea.strip() for linea in texto.split("\n")]
-    return "\n".join(lineas).strip()
+    return _reunir_parrafos(lineas)
+
+
+def _reunir_parrafos(lineas: List[str]) -> str:
+    """
+    Reune las lineas que forman parte de una misma oracion.
+
+    Los documentos clinicos se exportan con un ancho de renglon fijo, de modo
+    que una misma afirmacion puede quedar repartida en dos lineas. Si esas
+    lineas no se reunen, la deteccion posterior opera sobre fragmentos de
+    oracion y pierde los marcadores expresados a caballo de un salto de
+    renglon: "ganancia del cromosoma 7 y perdida del" en una linea y
+    "cromosoma 10" en la siguiente no se reconocen como una unica afirmacion.
+
+    El criterio de union es deliberadamente conservador. Dos lineas se unen
+    unicamente cuando la primera no termina en signo de puntuacion terminal y
+    la segunda comienza en minuscula, situacion que solo se produce cuando la
+    oracion efectivamente continua. De este modo se preservan los
+    encabezados, los elementos de enumeracion y los titulos de seccion, que
+    constituyen unidades independientes.
+    """
+    resultado: List[str] = []
+    for linea in lineas:
+        if not linea:
+            resultado.append(linea)
+            continue
+
+        if resultado and resultado[-1]:
+            previa = resultado[-1]
+            termina_oracion = previa[-1] in ".;:!?"
+            continua = linea[0].islower() or linea[0].isdigit()
+            es_enumeracion = linea[0] in "-*\u2022"
+            if not termina_oracion and continua and not es_enumeracion:
+                resultado[-1] = previa + " " + linea
+                continue
+
+        resultado.append(linea)
+
+    return "\n".join(resultado).strip()
 
 
 # ---------------------------------------------------------------------------

@@ -1,9 +1,14 @@
 CASO-005 - MOLECULAR
 Documento sintetico de demostracion.
 
+Metodo: NGS panel SNC + pirosecuenciacion MGMT.
 IDH1/2: wild-type.
-MGMT: metilacion del promotor: ausente.
+MGMT: metilacion del promotor: ausente (3%).
 1p/19q: conservados.
 TERT promotor: mutado (C228T).
 EGFR: sin amplificacion.
 TP53: sin mutacion.
+CDKN2A/B: delecion homocigota presente.
+Cromosomas: +7/-10 presente.
+H3: sin mutacion.
+Interpretacion: GBM IDH-WT.

@@ -168,6 +168,52 @@ MUESTRA = {
                 "markers. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
             ),
         },
+        {
+            "nct": "NCT02autogen6",
+            "titulo": "Estudio de agente dirigido en glioma difuso de la linea media con alteracion de H3 K27",
+            "fase": "Fase 2",
+            "estado": "RECRUITING",
+            "condiciones": ["Diffuse Midline Glioma", "Glioma"],
+            "intervenciones": ["Investigational agent"],
+            "paises": ["United States", "France"],
+            "criterios": (
+                "Inclusion: histologically confirmed diffuse midline glioma, "
+                "H3 K27M mutant, IDH wild-type. Age 12 years or older. "
+                "Exclusion: H3 wild-type tumors. ABRIDGED SUMMARY, NOT THE "
+                "FULL PROTOCOL."
+            ),
+        },
+        {
+            "nct": "NCT02autogen7",
+            "titulo": "Inhibidor de CDK4/6 en astrocitoma IDH mutante con delecion de CDKN2A/B",
+            "fase": "Fase 2",
+            "estado": "RECRUITING",
+            "condiciones": ["Astrocytoma", "Glioma"],
+            "intervenciones": ["CDK4/6 inhibitor"],
+            "paises": ["United States", "Spain"],
+            "criterios": (
+                "Inclusion: IDH mutant astrocytoma with homozygous deletion of "
+                "CDKN2A/B, grade 4. Prior radiotherapy permitted. Exclusion: "
+                "IDH wild-type tumors, CDKN2A intact. ABRIDGED SUMMARY, NOT "
+                "THE FULL PROTOCOL."
+            ),
+        },
+        {
+            "nct": "NCT02autogen8",
+            "titulo": "Estudio de reirradiacion en glioblastoma recurrente",
+            "fase": "Fase 2",
+            "estado": "RECRUITING",
+            "condiciones": ["Glioblastoma", "Recurrent Glioblastoma"],
+            "intervenciones": ["Re-irradiation", "Bevacizumab"],
+            "paises": ["Argentina", "Chile", "Brazil"],
+            "criterios": (
+                "Inclusion: recurrent glioblastoma, IDH wild-type, with gain of "
+                "chromosome 7 and loss of chromosome 10. Karnofsky performance "
+                "status 70 or higher. Prior radiotherapy completed at least 6 "
+                "months before enrollment. ABRIDGED SUMMARY, NOT THE FULL "
+                "PROTOCOL."
+            ),
+        },
     ],
 }
 

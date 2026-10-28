@@ -1,0 +1,28 @@
+INFORME ANATOMOPATOLOGICO - CASO-007
+Documento sintetico de demostracion.
+Informe correspondiente a la cirugia inicial, realizada hace 14 meses.
+
+MATERIAL REMITIDO
+Pieza de reseccion tumoral, region frontal derecha.
+
+DESCRIPCION MICROSCOPICA
+Proliferacion glial difusamente infiltrante con atipia nuclear moderada y
+actividad mitotica, con recuento de 6 mitosis por 10 campos de gran
+aumento. No se observa proliferacion microvascular ni necrosis.
+
+INMUNOHISTOQUIMICA
+GFAP: positivo difuso.
+IDH1 R132H: positivo.
+ATRX: perdida de expresion nuclear.
+p53: sobreexpresion nuclear en aproximadamente 55% de las celulas.
+Ki-67: indice proliferativo del 15%.
+
+DIAGNOSTICO INTEGRADO (formato en capas segun ICCR)
+Diagnostico integrado: Astrocitoma IDH mutante, grado 3 de la OMS.
+Apariencia histologica: glioma difuso con actividad mitotica.
+Grado OMS: 3.
+Parametros moleculares: mutacion IDH1 R132H; mutacion de ATRX; mutacion de
+TP53; 1p/19q sin codelecion; CDKN2A/B sin delecion homocigota.
+
+Clasificacion de la OMS de los Tumores del Sistema Nervioso Central,
+quinta edicion, 2021.

@@ -1,20 +1,34 @@
 INFORME ANATOMOPATOLOGICO - CASO-004
 Documento sintetico de demostracion.
 
-MATERIAL REMITIDO: Cilindros de biopsia estereotaxica, region frontal derecha.
+MATERIAL REMITIDO
+Tres cilindros de biopsia estereotaxica, region frontal derecha.
+Longitud conjunta aproximada: 1,2 cm.
 
-DESCRIPCION MICROSCOPICA: Escaso material constituido por tejido glial con
-aumento de la celularidad y atipia nuclear moderada. Se identifican algunas
-figuras mitoticas. El material resulta insuficiente para una evaluacion
-completa de necrosis y proliferacion microvascular.
+DESCRIPCION MICROSCOPICA
+Material escaso, constituido por tejido glial con aumento de la celularidad
+y atipia nuclear moderada. Se identifican algunas figuras mitoticas.
 
-INMUNOHISTOQUIMICA:
-- GFAP: positivo.
-- IDH1 R132H: negativo.
-- Ki-67: indice proliferativo aproximado del 18%.
+El material resulta insuficiente para una evaluacion completa de la
+presencia de necrosis y de proliferacion microvascular, elementos
+necesarios para la graduacion histologica definitiva.
 
-DIAGNOSTICO: Glioma difuso de alto grado. Se sugiere ampliar estudios
-moleculares para tipificacion definitiva segun clasificacion OMS 2021.
+INMUNOHISTOQUIMICA
+GFAP: positivo.
+IDH1 R132H: negativo.
+ATRX: expresion nuclear conservada.
+Ki-67: indice proliferativo aproximado del 18%.
 
-NOTA: El estudio de metilacion del promotor de MGMT no resulta valorable por
-material insuficiente.
+OBSERVACION SOBRE ESTUDIOS COMPLEMENTARIOS
+El estudio de metilacion del promotor de MGMT no resulta valorable por
+material insuficiente. Se solicita nueva muestra o, en su defecto,
+interpretacion en el contexto clinico radiologico.
+
+DIAGNOSTICO
+Glioma difuso de alto grado. Se sugiere ampliar estudios moleculares para
+tipificacion definitiva conforme a la clasificacion de la OMS, quinta
+edicion, 2021.
+
+Nota: la negatividad de IDH1 R132H por inmunohistoquimica en un paciente
+mayor de 55 anios, en ausencia de otros hallazgos, orienta a glioma IDH
+wild-type, si bien la confirmacion requiere secuenciacion.

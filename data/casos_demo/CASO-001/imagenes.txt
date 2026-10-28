@@ -1,23 +1,37 @@
 INFORME DE RESONANCIA MAGNETICA - CASO-001
 Documento sintetico de demostracion.
 
-ESTUDIO: Resonancia magnetica de encefalo con y sin contraste endovenoso.
+ESTUDIO
+Resonancia magnetica de encefalo sin y con gadolinio. Protocolo de
+neuro-oncologia: T1 volumetrico 3D pre y poscontraste, T2, FLAIR,
+difusion y perfusion.
 
-HALLAZGOS: Se identifica lesion expansiva intraaxial localizada en region
-frontal izquierda, con extension al giro frontal inferior, que mide
-4.2 x 3.1 x 2.8 cm en sus diametros maximos.
+HALLAZGOS
+Lesion expansiva intraaxial en region frontal izquierda, con extension al
+giro frontal inferior, de 4,2 x 3,1 x 2,8 cm en sus diametros maximos.
+Producto de diametros perpendiculares en el corte axial de mayor
+representacion: 42 x 31 mm.
 
-La lesion presenta senal hiperintensa en secuencias T2 y FLAIR, e hipointensa
-en T1. Tras la administracion de contraste se observa realce heterogeneo,
-de distribucion parcheada, en el sector posteromedial de la lesion.
+Senal hiperintensa en T2 y FLAIR, hipointensa en T1. Tras la administracion
+de gadolinio se observa realce heterogeneo, de distribucion parcheada, en
+el sector posteromedial de la lesion.
 
-Se acompaña de edema vasogenico perilesional que se extiende hacia la sustancia
-blanca subcortical adyacente, con efecto de masa sobre el asta frontal del
-ventriculo lateral izquierdo y desviacion de la linea media de 4 mm hacia
-la derecha.
+Alteracion de senal no realzante en T2/FLAIR que se extiende hacia la
+sustancia blanca subcortical adyacente, compatible con componente
+infiltrativo y edema vasogenico.
 
-No se observan signos de sangrado intratumoral ni de diseminacion leptomeningea.
+Efecto de masa sobre el asta frontal del ventriculo lateral izquierdo, con
+desviacion de la linea media de 4 mm hacia la derecha.
 
-CONCLUSION: Lesion expansiva intraaxial frontal izquierda con realce
-heterogeneo, compatible con glioma de alto grado. Se sugiere correlacion
+En secuencias de difusion no se observan areas de restriccion significativa.
+En perfusion, volumen sanguineo cerebral relativo aumentado en el sector
+con realce.
+
+No se observan signos de sangrado intratumoral ni diseminacion
+leptomeningea.
+
+CONCLUSION
+Lesion expansiva intraaxial frontal izquierda con realce heterogeneo y
+componente no realzante periferico, compatible con glioma difuso de alto
+grado. Enfermedad medible segun criterios RANO. Se sugiere correlacion
 histopatologica.

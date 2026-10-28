@@ -78,7 +78,8 @@ TIMEOUT_RED = 20
 # Marcadores moleculares contemplados por el sistema
 # ---------------------------------------------------------------------------
 
-MARCADORES = ["IDH", "1p/19q", "MGMT", "ATRX", "TERT", "EGFR", "TP53"]
+MARCADORES = ["IDH", "1p/19q", "MGMT", "ATRX", "TERT", "EGFR", "TP53",
+              "H3", "CDKN2A/B", "Cromosomas 7/10"]
 
 
 # ---------------------------------------------------------------------------

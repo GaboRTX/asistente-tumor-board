@@ -1,0 +1,30 @@
+INFORME ANATOMOPATOLOGICO - CASO-008
+Documento sintetico de demostracion.
+Informe correspondiente a la cirugia inicial, realizada hace 4 meses.
+
+MATERIAL REMITIDO
+Tejido de reseccion tumoral, region temporooccipital derecha.
+
+DESCRIPCION MICROSCOPICA
+Neoplasia glial de alta celularidad con marcado pleomorfismo nuclear y
+elevada actividad mitotica, con recuento de 16 mitosis por 10 campos de
+gran aumento. Areas de necrosis con seudoempalizada perinecrotica y
+proliferacion microvascular glomeruloide.
+
+INMUNOHISTOQUIMICA
+GFAP: positivo.
+IDH1 R132H: negativo.
+ATRX: expresion nuclear conservada.
+Ki-67: indice proliferativo del 40%.
+
+DIAGNOSTICO INTEGRADO (formato en capas segun ICCR)
+Diagnostico integrado: Glioblastoma IDH wild-type, grado 4 de la OMS.
+Apariencia histologica: glioma difuso de alto grado con necrosis y
+proliferacion microvascular.
+Grado OMS: 4.
+Parametros moleculares: IDH wild-type; promotor de TERT mutado C250T;
+promotor de MGMT metilado; amplificacion de EGFR ausente; delecion
+homocigota de CDKN2A/B presente.
+
+Clasificacion de la OMS de los Tumores del Sistema Nervioso Central,
+quinta edicion, 2021.

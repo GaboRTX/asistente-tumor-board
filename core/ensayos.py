@@ -218,6 +218,12 @@ def obtener_ensayos(termino: str = "glioma", maximo: int = 50,
 # Patrones que identifican cada estado de marcador dentro del texto de los
 # criterios de elegibilidad, redactados en ingles por ser el idioma del
 # registro.
+#
+# Las ventanas de contexto excluyen la coma y el punto y coma de manera
+# deliberada. Los criterios enumeran varios marcadores en una misma oracion,
+# por ejemplo "H3 K27M mutant, IDH wild-type": una ventana que atraviese la
+# coma atribuye a H3 el estado informado de IDH y descarta el estudio para un
+# paciente que si reune las condiciones de ingreso.
 PATRONES_ESTADO = {
     ("IDH", "mutado"): [r"idh[\s\-/12]*\s*mutant", r"idh[\s\-/12]*\s*mutat",
                         r"mutant\s+idh", r"idh1?\s*r132", r"idh2?\s*r172"],
@@ -229,17 +235,31 @@ PATRONES_ESTADO = {
                                        r"1p\s*/?\s*19q[\s\-]*intact",
                                        r"without\s+1p\s*/?\s*19q",
                                        r"1p\s*/?\s*19q[\s\-]*retained"],
-    ("MGMT", "metilado"): [r"mgmt[^.]{0,30}\bmethylat", r"\bmethylated\s+mgmt"],
-    ("MGMT", "no metilado"): [r"mgmt[^.]{0,30}unmethylat", r"unmethylated\s+mgmt",
-                              r"mgmt[^.]{0,30}non[\s\-]*methylat"],
+    ("MGMT", "metilado"): [r"mgmt[^.,;]{0,30}\bmethylat", r"\bmethylated\s+mgmt"],
+    ("MGMT", "no metilado"): [r"mgmt[^.,;]{0,30}unmethylat", r"unmethylated\s+mgmt",
+                              r"mgmt[^.,;]{0,30}non[\s\-]*methylat"],
     ("EGFR", "amplificado"): [r"egfr\s*amplif", r"egfrviii", r"egfr\s*viii"],
     ("EGFR", "no amplificado"): [r"without\s+egfr\s*amplif", r"egfr\s*non[\s\-]*amplif"],
     ("TERT", "mutado"): [r"tert\s*(?:promoter\s*)?mutat", r"c228t", r"c250t"],
-    ("TERT", "no mutado"): [r"tert[^.]{0,30}wild[\s\-]*type"],
+    ("TERT", "no mutado"): [r"tert[^.,;]{0,30}wild[\s\-]*type"],
     ("ATRX", "perdido"): [r"atrx\s*(?:loss|mutat|deficien|negative)"],
     ("ATRX", "conservado"): [r"atrx\s*(?:retained|intact|preserved)"],
     ("TP53", "mutado"): [r"tp53\s*mutat", r"\bp53\s*mutat"],
-    ("TP53", "no mutado"): [r"tp53[^.]{0,30}wild[\s\-]*type"],
+    ("TP53", "no mutado"): [r"tp53[^.,;]{0,30}wild[\s\-]*type"],
+    ("H3", "alterado"): [r"h3\s*k27m", r"h3[\s\-]*k27[\s\-]*alter",
+                         r"histone\s*h3[^.,;]{0,20}mutat", r"h3f3a\s*mutat",
+                         r"diffuse\s*midline\s*glioma", r"h3\s*g34"],
+    ("H3", "no alterado"): [r"h3[^.,;]{0,20}wild[\s\-]*type",
+                            r"h3\s*k27m[\s\-]*negative"],
+    ("CDKN2A/B", "delecion homocigota presente"): [
+        r"cdkn2a[^.,;]{0,30}(?:homozygous\s*)?deletion",
+        r"homozygous\s*deletion[^.,;]{0,30}cdkn2a"],
+    ("CDKN2A/B", "delecion homocigota ausente"): [
+        r"without\s*cdkn2a[^.,;]{0,20}deletion",
+        r"cdkn2a[^.,;]{0,30}intact", r"cdkn2a[^.,;]{0,30}retained"],
+    ("Cromosomas 7/10", "alterado"): [
+        r"\+\s*7\s*/\s*-\s*10", r"chromosome\s*7\s*gain",
+        r"gain\s*of\s*chromosome\s*7", r"loss\s*of\s*chromosome\s*10"],
 }
 
 # Estado contrario de cada valor, utilizado para detectar incompatibilidad
@@ -254,6 +274,10 @@ OPUESTOS = {
     "no amplificado": "amplificado",
     "perdido": "conservado",
     "conservado": "perdido",
+    "delecion homocigota presente": "delecion homocigota ausente",
+    "delecion homocigota ausente": "delecion homocigota presente",
+    "alterado": "no alterado",
+    "no alterado": "alterado",
 }
 
 

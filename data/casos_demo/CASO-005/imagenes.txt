@@ -1,7 +1,9 @@
 CASO-005 - RM
 Documento sintetico de demostracion.
 
-RM encefalo c/ contraste. Lesion occipital izq 3.9 x 3.2 x 2.7 cm, realce
-anular irregular, necrosis central. Edema perilesional importante.
+RM encefalo c/ gadolinio. Lesion occipital izq 3,9 x 3,2 x 2,7 cm.
+Producto diametros: 39 x 32 mm. Realce anular irregular, necrosis central.
+T2/FLAIR: alteracion no realzante perilesional importante.
 Efecto de masa +. LM desviada 6 mm a derecha.
-Conclusion: glioma de alto grado.
+Difusion: restriccion en bordes solidos.
+Conclusion: glioma de alto grado. Enfermedad medible RANO.

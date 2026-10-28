@@ -30,7 +30,7 @@ Realizar **con anticipación y con conexión a internet disponible**:
 - [ ] Ejecutar `python scripts/construir_cache_ensayos.py --regenerar` para
       obtener estudios reales de ClinicalTrials.gov. Sin este paso el sistema
       opera con una muestra de referencia cuyos criterios están resumidos.
-- [ ] Ejecutar `pytest tests/ -v` y verificar que las 116 pruebas pasan.
+- [ ] Ejecutar `pytest tests/ -v` y verificar que las 146 pruebas pasan.
 - [ ] Procesar al menos un caso completo y registrar una corrección, de modo
       que la pantalla de métricas muestre datos durante la presentación.
 - [ ] Cargar un tiempo de preparación manual de referencia en la pantalla de
@@ -311,6 +311,27 @@ Validar la corrección para mostrar que pasa a activa.
 
 ---
 
+### Casos disponibles para la demostración
+
+Conviene conocer qué muestra cada caso, para elegir según lo que pregunte el
+jurado:
+
+- **CASO-001**, astrocitoma IDH mutante: perfil molecular completo, es el
+  caso de referencia para la demostración principal.
+- **CASO-002**, glioblastoma IDH wild-type: útil para mostrar cómo los
+  criterios moleculares establecen el grado 4.
+- **CASO-004**: documentación incompleta. Sirve para mostrar que el sistema
+  declara lo que no consta en lugar de completarlo.
+- **CASO-006**, glioma de la línea media H3 K27 alterado: el marcador define
+  la entidad y dispara un estudio clínico específico.
+- **CASO-007**: evaluación de respuesta según RANO, con reducción del 69,3%
+  del producto de diámetros.
+- **CASO-008**: pseudoprogresión. Es el caso más interesante si preguntan por
+  los límites del sistema, porque la distinción entre progresión y
+  pseudoprogresión es una decisión clínica que la herramienta no toma.
+
+---
+
 ### Minuto 9 a 10 — Resultados
 
 Ir a **Métricas**.
@@ -382,6 +403,16 @@ copia local de estudios. Puedo mostrarlo ahora mismo. Lo importante es que la
 degradación nunca es silenciosa: la interfaz informa qué modo está usando y
 por qué.
 
+### «¿De dónde salieron los casos de demostración?»
+
+Son sintéticos, construidos por mí. Lo que sí tomé de fuentes reales es la
+estructura y la terminología: el informe anatomopatológico sigue el formato
+en capas del conjunto de datos del ICCR, los biomarcadores y las técnicas son
+los que recomiendan el College of American Pathologists junto con AANP, AMP y
+SNO, los esquemas terapéuticos y las dosis provienen de las guías de EANO, y
+los informes de imágenes aplican los criterios RANO de medición bidimensional.
+Ningún caso reproduce textualmente un informe publicado.
+
 ### «¿Usaste datos reales de pacientes?»
 
 No. Trabajé con casos sintéticos construidos a partir de patrones descriptos
@@ -400,8 +431,8 @@ aportado valor al problema que el trabajo aborda.
 
 ### «¿Qué tan preciso es?»
 
-La extracción de marcadores moleculares se verifica contra 116 pruebas
-automatizadas, incluidos los cinco casos de demostración completos. Ahora,
+La extracción de marcadores moleculares se verifica contra 146 pruebas
+automatizadas, incluidos los ocho casos de demostración completos. Ahora,
 sobre precisión clínica real necesito ser preciso yo también: la validación
 con profesionales se hizo sobre un número acotado de casos, así que esto es
 una prueba de concepto, no una validación clínica. Lo dejé asentado entre las

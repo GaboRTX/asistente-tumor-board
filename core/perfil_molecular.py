@@ -36,6 +36,10 @@ CONSERVADO = "conservado"
 PERDIDO = "perdido"
 AMPLIFICADO = "amplificado"
 NO_AMPLIFICADO = "no amplificado"
+DELECIONADO = "delecion homocigota presente"
+NO_DELECIONADO = "delecion homocigota ausente"
+ALTERADO = "alterado"
+NO_ALTERADO = "no alterado"
 NO_INFORMADO = "no informado"
 
 
@@ -431,6 +435,103 @@ def _detectar_tp53(oracion_plana: str, oracion_original: str) -> Optional[Marcad
     return None
 
 
+def _detectar_h3(oracion_plana: str, oracion_original: str) -> Optional[Marcador]:
+    """
+    Detecta la alteracion de la histona H3.
+
+    La mutacion H3 K27M define el glioma difuso de la linea media y la
+    mutacion H3 G34 el glioma hemisferico difuso; en ambos casos la
+    alteracion asigna grado 4 con independencia de la histologia, conforme a
+    la clasificacion de la OMS de 2021. Las guias del College of American
+    Pathologists junto con AANP, AMP y SNO establecen su determinacion
+    obligatoria en gliomas difusos de la linea media.
+
+    La nomenclatura admite varias formas para la misma alteracion: K27M y
+    K28M designan la misma variante segun se numere la proteina madura o
+    la secuencia completa.
+    """
+    if not re.search(r"\bh3\b|h3f3a|hist1h3b|k27|k28|g34", oracion_plana):
+        return None
+
+    pos = max(oracion_plana.find("h3"), 0)
+    ambito = _clausula(oracion_plana, pos)
+
+    # Perdida de la trimetilacion, hallazgo acompaniante de la mutacion K27M
+    if re.search(r"k27me3|k27 ?me3", ambito):
+        if re.search(r"perdida|ausencia|negativ|no expres", ambito):
+            return Marcador("H3", ALTERADO, "perdida de H3 K27me3", oracion_original)
+        return None
+
+    variante = re.search(r"\b(k27m|k28m|g34[rvw])\b", ambito)
+    menciona_mutacion = re.search(r"mutaci|mutad|alterad|positiv", ambito)
+
+    if variante or menciona_mutacion:
+        if _hay_negacion_cerca(ambito, max(ambito.find("h3"), 0)):
+            return Marcador("H3", NO_ALTERADO, "sin mutacion de H3", oracion_original)
+        if variante:
+            v = variante.group(1).upper()
+            legible = "K27M" if v in ("K27M", "K28M") else v
+            return Marcador("H3", ALTERADO, f"mutacion H3 {legible}", oracion_original)
+        return Marcador("H3", ALTERADO, "alteracion de H3", oracion_original)
+
+    return None
+
+
+def _detectar_cdkn2a(oracion_plana: str, oracion_original: str) -> Optional[Marcador]:
+    """
+    Detecta el estado de CDKN2A/B.
+
+    La delecion homocigota de CDKN2A/B asigna grado 4 a un astrocitoma IDH
+    mutante con independencia de la histologia, y constituye un factor
+    pronostico desfavorable. Su determinacion es recomendada por las guias
+    del College of American Pathologists en astrocitomas IDH mutantes.
+    """
+    if not re.search(r"cdkn2a|cdkn2b|p16", oracion_plana):
+        return None
+
+    pos = max(oracion_plana.find("cdkn2"), oracion_plana.find("p16"), 0)
+    ambito = _clausula(oracion_plana, pos)
+
+    # La conservacion puede expresarse sin mencionar la delecion
+    if re.search(r"conserv|intact|indemne|retenid", ambito):
+        return Marcador("CDKN2A/B", NO_DELECIONADO, "sin delecion homocigota",
+                        oracion_original)
+
+    if not re.search(r"delecion|delecionad|perdida|homocigot", ambito):
+        return None
+
+    if re.search(r"\bsin\b|\bno\b|ausen|negativ", ambito):
+        return Marcador("CDKN2A/B", NO_DELECIONADO, "sin delecion homocigota",
+                        oracion_original)
+    return Marcador("CDKN2A/B", DELECIONADO, "delecion homocigota",
+                    oracion_original)
+
+
+def _detectar_cromosomas(oracion_plana: str, oracion_original: str) -> Optional[Marcador]:
+    """
+    Detecta el patron de ganancia del cromosoma 7 con perdida del 10.
+
+    Este patron, junto con la mutacion del promotor de TERT y la
+    amplificacion de EGFR, permite establecer el diagnostico molecular de
+    glioblastoma IDH wild-type aun en ausencia de necrosis o proliferacion
+    microvascular, conforme a la clasificacion de la OMS de 2021.
+    """
+    patron_corto = re.search(r"\+ ?7 ?/ ?- ?10", oracion_plana)
+    patron_largo = re.search(
+        r"ganancia[^.;]{0,40}cromosoma 7[^.;]{0,60}perdida[^.;]{0,40}cromosoma 10",
+        oracion_plana)
+
+    if not (patron_corto or patron_largo):
+        return None
+
+    ambito = oracion_plana
+    if re.search(r"\bsin\b|\bno se\b|ausen|negativ", ambito[:ambito.find("7") if "7" in ambito else len(ambito)]):
+        return Marcador("Cromosomas 7/10", NO_ALTERADO, "sin patron +7/-10",
+                        oracion_original)
+    return Marcador("Cromosomas 7/10", ALTERADO, "ganancia del 7 y perdida del 10",
+                    oracion_original)
+
+
 DETECTORES = {
     "IDH": _detectar_idh,
     "1p/19q": _detectar_1p19q,
@@ -439,6 +540,9 @@ DETECTORES = {
     "TERT": _detectar_tert,
     "EGFR": _detectar_egfr,
     "TP53": _detectar_tp53,
+    "H3": _detectar_h3,
+    "CDKN2A/B": _detectar_cdkn2a,
+    "Cromosomas 7/10": _detectar_cromosomas,
 }
 
 # Prioridad de las fuentes documentales ante resultados discrepantes.

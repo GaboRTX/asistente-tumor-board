@@ -1,21 +1,33 @@
 INFORME ANATOMOPATOLOGICO - CASO-002
 Documento sintetico de demostracion.
 
-MATERIAL REMITIDO: Tejido de reseccion tumoral, region parietal derecha.
+MATERIAL REMITIDO
+Tejido de reseccion tumoral, region parietal derecha.
 
-DESCRIPCION MICROSCOPICA: Neoplasia glial de alta celularidad, difusamente
-infiltrante, con marcado pleomorfismo nuclear y elevada actividad mitotica
-(14 mitosis por 10 campos de gran aumento).
+DESCRIPCION MICROSCOPICA
+Neoplasia glial de alta celularidad, difusamente infiltrante, con marcado
+pleomorfismo nuclear y elevada actividad mitotica, con recuento de 14
+mitosis por 10 campos de gran aumento.
 
 Se observan extensas areas de necrosis con patron de seudoempalizada
-perinecrotica, asi como proliferacion microvascular con formacion de
+perinecrotica. Proliferacion microvascular prominente con formacion de
 estructuras glomeruloides.
 
-INMUNOHISTOQUIMICA:
-- GFAP: positivo.
-- IDH1 R132H: negativo.
-- ATRX: expresion nuclear conservada.
-- Ki-67: indice proliferativo del 35%.
+INMUNOHISTOQUIMICA
+GFAP: positivo en celulas tumorales.
+IDH1 R132H: negativo.
+ATRX: expresion nuclear conservada.
+p53: sin sobreexpresion significativa.
+Ki-67: indice proliferativo del 35%.
 
-DIAGNOSTICO: Glioblastoma, IDH wild-type, grado 4 de la OMS
-(Clasificacion OMS 2021 de Tumores del Sistema Nervioso Central).
+DIAGNOSTICO INTEGRADO (formato en capas segun ICCR)
+Diagnostico integrado: Glioblastoma IDH wild-type, grado 4 de la OMS.
+Apariencia histologica: glioma difuso de alto grado con necrosis en
+seudoempalizada y proliferacion microvascular.
+Grado OMS: 4.
+Parametros moleculares: IDH1 e IDH2 sin mutacion; promotor de TERT mutado
+C228T; amplificacion de EGFR con variante EGFRvIII; promotor de MGMT no
+metilado; 1p/19q sin codelecion; delecion homocigota de CDKN2A/B presente.
+
+Clasificacion de la OMS de los Tumores del Sistema Nervioso Central,
+quinta edicion, 2021.

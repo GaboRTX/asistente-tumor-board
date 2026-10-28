@@ -193,3 +193,70 @@ def test_perfil_conserva_la_evidencia_textual():
     marcador = perfil_de(oracion).obtener("MGMT")
     assert marcador.evidencia.strip() == oracion
     assert marcador.tipo_documento == "genomica"
+
+
+# ---------------------------------------------------------------------------
+# Marcadores incorporados conforme a las guias CAP / AANP / AMP / SNO
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("texto,esperado", [
+    ("H3F3A: mutacion p.K28M detectada.", "alterado"),
+    ("H3 K27M: positivo, con marcacion nuclear intensa.", "alterado"),
+    ("Mutacion H3 G34R detectada.", "alterado"),
+    ("H3 K27me3: perdida de expresion nuclear.", "alterado"),
+    ("H3F3A: sin mutacion en K27 ni en G34.", "no alterado"),
+    ("H3: sin mutacion.", "no alterado"),
+])
+def test_h3(texto, esperado):
+    """
+    La alteracion de H3 define el glioma difuso de la linea media y asigna
+    grado 4 con independencia de la histologia. Su determinacion es
+    obligatoria en gliomas de la linea media segun las guias del College of
+    American Pathologists.
+    """
+    assert perfil_de(texto).valor("H3") == esperado
+
+
+@pytest.mark.parametrize("texto,esperado", [
+    ("CDKN2A/B: delecion homocigota presente.", "delecion homocigota presente"),
+    ("CDKN2A/B: sin delecion homocigota.", "delecion homocigota ausente"),
+    ("Se detecta delecion homocigota de CDKN2A/B.", "delecion homocigota presente"),
+    ("CDKN2A/B conservado, sin perdida.", "delecion homocigota ausente"),
+])
+def test_cdkn2a(texto, esperado):
+    """La delecion homocigota de CDKN2A/B asigna grado 4 al astrocitoma
+    IDH mutante."""
+    assert perfil_de(texto).valor("CDKN2A/B") == esperado
+
+
+@pytest.mark.parametrize("texto,esperado", [
+    ("Ganancia completa del cromosoma 7 y perdida completa del cromosoma 10.", "alterado"),
+    ("Patron +7/-10 presente.", "alterado"),
+])
+def test_cromosomas_7_10(texto, esperado):
+    """El patron +7/-10 permite el diagnostico molecular de glioblastoma
+    aun sin necrosis ni proliferacion microvascular."""
+    assert perfil_de(texto).valor("Cromosomas 7/10") == esperado
+
+
+def test_h3_no_captura_el_wildtype_de_otro_marcador():
+    """
+    Regresion. En una enumeracion, el estado informado de un marcador no debe
+    atribuirse a otro: en "H3 K27M mutante, IDH wild-type" el wild-type
+    corresponde a IDH.
+    """
+    perfil = perfil_de("Mutacion H3 K27M presente, IDH wild-type.")
+    assert perfil.valor("H3") == "alterado"
+    assert perfil.valor("IDH") == "no mutado"
+
+
+def test_oracion_partida_en_dos_renglones():
+    """
+    Regresion. Un marcador expresado a caballo de un salto de renglon debe
+    detectarse, dado que los documentos clinicos se exportan con ancho de
+    linea fijo.
+    """
+    from core.ingesta import normalizar
+    texto = normalizar("Perfil de numero de copias: ganancia del cromosoma 7\n"
+                       "y perdida del cromosoma 10.")
+    assert perfil_de(texto).valor("Cromosomas 7/10") == "alterado"
