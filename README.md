@@ -70,9 +70,15 @@ modelos habilitados para una clave determinada:
 python scripts/verificar_entorno.py --modelos
 ```
 
-El identificador obtenido se consigna en `MODELO_LLM` dentro del archivo
-`.env`. El sistema informa esta situación de manera explícita en la interfaz
-y continúa operando en modo determinista mientras tanto.
+El script comprueba cada candidato mediante una solicitud efectiva, dado que
+figurar en el listado del proveedor no implica acceso: los modelos más
+recientes suelen requerir facturación habilitada y rechazan la solicitud con
+un código 403 aunque la interfaz los enumere.
+
+Ante un modelo que no responde, el sistema prueba de manera automática una
+lista de alternativas antes de recurrir al modo determinista, e informa en la
+interfaz cuál utilizó. Fijar un identificador operativo en `MODELO_LLM` evita
+ese tiempo de búsqueda en cada ejecución.
 
 ### Verificación del entorno
 

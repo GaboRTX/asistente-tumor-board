@@ -256,23 +256,47 @@ def verificar_llm(listar: bool = False):
                     "proveedor que modelos admite la clave configurada.")
         return
 
-    print(f"  {GRIS}Consultando los modelos habilitados...{FIN}")
-    modelos, mensaje = listar_modelos_disponibles()
+    from core.llm import MODELOS_ALTERNATIVOS, verificar_modelo_operativo
 
-    if not modelos:
-        advertencia("No fue posible obtener el listado de modelos", mensaje)
+    print(f"  {GRIS}Comprobando el modelo configurado...{FIN}")
+    operativo, detalle = verificar_modelo_operativo(modelo)
+
+    if operativo:
+        ok(f"El modelo '{modelo}' responde correctamente")
         return
 
-    ok(f"Modelos habilitados para la clave configurada: {len(modelos)}")
-    for nombre in modelos:
-        marca = "  <- configurado" if nombre == modelo else ""
-        print(f"         {nombre}{marca}")
+    advertencia(f"El modelo configurado '{modelo}' no responde", detalle)
 
-    if modelo not in modelos:
-        advertencia(f"El modelo configurado '{modelo}' no figura entre los "
-                    f"habilitados",
-                    "Consigne uno de los modelos listados en MODELO_LLM "
-                    "dentro del archivo .env")
+    # La enumeracion que ofrece el proveedor no garantiza acceso, de modo que
+    # cada candidato se comprueba mediante una solicitud efectiva.
+    print(f"  {GRIS}Probando modelos alternativos...{FIN}")
+    candidatos = [m for m in MODELOS_ALTERNATIVOS.get(proveedor, [])
+                  if m != modelo]
+
+    operativos = []
+    for candidato in candidatos:
+        disponible, _ = verificar_modelo_operativo(candidato)
+        estado = "responde" if disponible else "no disponible"
+        print(f"         {candidato}: {estado}")
+        if disponible:
+            operativos.append(candidato)
+
+    if operativos:
+        ok(f"Modelos operativos para su clave: {', '.join(operativos)}",
+           f"Consigne uno de ellos en MODELO_LLM dentro del archivo .env. "
+           f"El sistema los utiliza de manera automatica como respaldo, pero "
+           f"fijarlo evita el tiempo de busqueda en cada ejecucion.")
+    else:
+        advertencia("Ningun modelo alternativo respondio",
+                    "Verifique que la interfaz de programacion se encuentre "
+                    "habilitada en el proyecto y que la clave no tenga "
+                    "restricciones. El sistema continuara operando en modo "
+                    "determinista.")
+
+    modelos, mensaje = listar_modelos_disponibles()
+    if modelos:
+        print(f"  {GRIS}El proveedor enumera {len(modelos)} modelos; "
+              f"figurar en el listado no implica acceso efectivo.{FIN}")
 
 
 def verificar_embeddings(completo: bool):

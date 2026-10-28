@@ -244,3 +244,40 @@ def test_el_cuerpo_del_error_se_extrae_del_json():
     detalle = _detalle_del_error(RespuestaSimulada())
     assert "API key not valid" in detalle
     assert "INVALID_ARGUMENT" in detalle
+
+
+def test_solo_se_reintenta_ante_un_rechazo_del_modelo():
+    """
+    El respaldo automatico debe activarse unicamente cuando el rechazo es
+    atribuible al modelo. Una credencial invalida, un limite de uso alcanzado
+    o un fallo de red afectan por igual a cualquier modelo, de modo que
+    reintentar solo demoraria la respuesta.
+    """
+    from core.llm import _conviene_reintentar
+
+    assert _conviene_reintentar(Exception("404 Not Found"))
+    assert _conviene_reintentar(Exception("403 Forbidden"))
+    assert not _conviene_reintentar(Exception("401 Unauthorized"))
+    assert not _conviene_reintentar(Exception("429 quota exceeded"))
+    assert not _conviene_reintentar(Exception("Connection timeout"))
+
+
+def test_la_lista_de_respaldo_encabeza_con_versiones_estables():
+    """
+    Figurar en el listado del proveedor no implica acceso efectivo: los
+    modelos mas recientes suelen requerir un nivel superior. La lista de
+    respaldo comienza por versiones estables de generaciones anteriores.
+    """
+    from core.llm import MODELOS_ALTERNATIVOS
+
+    candidatos = MODELOS_ALTERNATIVOS["google"]
+    assert candidatos
+    assert candidatos[0].startswith("gemini-2.5")
+
+
+def test_sin_clave_no_se_verifica_el_modelo():
+    from core.llm import verificar_modelo_operativo
+
+    operativo, detalle = verificar_modelo_operativo("cualquiera")
+    assert operativo is False
+    assert "clave" in detalle.lower()

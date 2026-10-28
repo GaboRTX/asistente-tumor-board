@@ -51,9 +51,29 @@ MODO_SIN_CONEXION = "sin_conexion"
 # modelos admite la clave configurada, y el script de verificacion del
 # entorno informa el resultado.
 MODELOS_POR_DEFECTO = {
-    "google": "gemini-3.5-flash-lite",
+    "google": "gemini-2.5-flash",
     "anthropic": "claude-sonnet-4-5",
     "openai": "gpt-4o-mini",
+}
+
+# Modelos a los que el sistema recurre cuando el configurado no resulta
+# accesible, ordenados de mayor a menor disponibilidad.
+#
+# Figurar en el listado del proveedor no implica poder utilizarlo: los
+# modelos mas recientes suelen requerir un nivel de acceso superior y
+# responden con un rechazo por permisos aunque la interfaz los enumere. Por
+# ese motivo la lista comienza por las versiones estables de generaciones
+# anteriores, que son las habitualmente disponibles en los niveles gratuitos.
+MODELOS_ALTERNATIVOS = {
+    "google": [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+        "gemini-3.1-flash-lite",
+    ],
+    "anthropic": ["claude-sonnet-4-5", "claude-haiku-4-5"],
+    "openai": ["gpt-4o-mini", "gpt-4o"],
 }
 
 
@@ -211,15 +231,58 @@ def consultar(prompt: str) -> RespuestaLLM:
         return RespuestaLLM("", modelo, MODO_SIN_CONEXION,
                             error=f"Proveedor no reconocido: {proveedor}")
 
-    try:
-        texto = funcion(prompt, modelo)
-        if not (texto or "").strip():
-            return RespuestaLLM("", modelo, MODO_SIN_CONEXION,
-                                error="El proveedor devolvio una respuesta vacia.")
-        return RespuestaLLM(texto, modelo, MODO_CONECTADO)
-    except Exception as exc:
-        return RespuestaLLM("", modelo, MODO_SIN_CONEXION,
-                            error=_describir_error(exc, proveedor, modelo))
+    # Si en esta sesion ya se identifico un modelo operativo distinto del
+    # configurado, se utiliza directamente en lugar de repetir la busqueda.
+    if not MODELO_LLM and proveedor in _MODELO_EFECTIVO:
+        modelo = _MODELO_EFECTIVO[proveedor]
+
+    intentos = [modelo] + [m for m in MODELOS_ALTERNATIVOS.get(proveedor, [])
+                           if m != modelo]
+
+    primer_error = None
+    for indice, candidato in enumerate(intentos):
+        try:
+            texto = funcion(prompt, candidato)
+            if not (texto or "").strip():
+                raise RuntimeError("El proveedor devolvio una respuesta vacia.")
+
+            if indice > 0:
+                _MODELO_EFECTIVO[proveedor] = candidato
+            return RespuestaLLM(texto, candidato, MODO_CONECTADO)
+
+        except Exception as exc:
+            if primer_error is None:
+                primer_error = (exc, candidato)
+            if not _conviene_reintentar(exc):
+                break
+
+    exc, fallido = primer_error
+    return RespuestaLLM("", fallido, MODO_SIN_CONEXION,
+                        error=_describir_error(exc, proveedor, fallido))
+
+
+# Modelo que efectivamente respondio, por proveedor. Permite evitar la
+# busqueda de alternativas en las solicitudes siguientes de la misma sesion.
+_MODELO_EFECTIVO: Dict[str, str] = {}
+
+
+def _conviene_reintentar(exc: Exception) -> bool:
+    """
+    Indica si corresponde probar con otro modelo.
+
+    Solo se reintenta ante un rechazo atribuible al modelo, es decir cuando
+    no existe o cuando el nivel de acceso no lo alcanza. Un fallo de red, una
+    credencial invalida o un limite de uso alcanzado afectan por igual a
+    cualquier modelo, de modo que reintentar unicamente demoraria la
+    respuesta sin posibilidad de exito.
+    """
+    texto = str(exc).lower()
+    if "401" in texto or "api key" in texto or "unauthorized" in texto:
+        return False
+    if "429" in texto or "quota" in texto or "rate limit" in texto:
+        return False
+    return ("404" in texto or "not found" in texto
+            or "403" in texto or "permission" in texto or "forbidden" in texto)
 
 
 def _describir_error(exc: Exception, proveedor: str, modelo: str) -> str:
@@ -263,6 +326,32 @@ def _describir_error(exc: Exception, proveedor: str, modelo: str) -> str:
                 f"Reintente en unos minutos.")
 
     return texto
+
+
+def verificar_modelo_operativo(modelo: str) -> Tuple[bool, str]:
+    """
+    Comprueba que el modelo responda efectivamente a una solicitud.
+
+    La enumeracion de modelos que ofrece el proveedor no constituye garantia
+    de acceso: un modelo puede figurar en el listado y rechazar la solicitud
+    por falta de permisos. La unica verificacion concluyente consiste en
+    emitir una solicitud minima y observar el resultado.
+    """
+    proveedor, _ = detectar_proveedor()
+    if proveedor == "offline":
+        return False, "No hay clave de API configurada."
+
+    funcion = PROVEEDORES.get(proveedor)
+    if funcion is None:
+        return False, f"Proveedor no reconocido: {proveedor}"
+
+    try:
+        respuesta = funcion("Responde unicamente: ok", modelo)
+        if (respuesta or "").strip():
+            return True, "operativo"
+        return False, "El proveedor devolvio una respuesta vacia."
+    except Exception as exc:
+        return False, str(exc)[:160]
 
 
 def listar_modelos_disponibles() -> Tuple[List[str], str]:
