@@ -58,8 +58,31 @@ cp .env.example .env
 # completar CLAVE_API_LLM en el archivo .env
 ```
 
-Google AI Studio ofrece un nivel gratuito suficiente para desarrollo:
-https://aistudio.google.com/apikey
+El sistema admite varios proveedores. Google AI Studio ofrece un nivel
+gratuito, si bien su disponibilidad depende de la configuración del proyecto:
+cuando no está habilitado, la interfaz responde con un rechazo por permisos y
+exige configurar un medio de pago.
+
+| Proveedor | Medio de pago | Observación |
+|---|---|---|
+| `google` | Según el proyecto | Modelos Gemini |
+| `groq` | No requerido | Modelos de pesos abiertos |
+| `cerebras` | No requerido | Modelos de pesos abiertos |
+| `openrouter` | No requerido | Acceso unificado |
+| `anthropic` | Requerido | Modelos Claude |
+| `openai` | Requerido | Modelos GPT |
+
+Los proveedores declaran financiar sus niveles gratuitos mediante el
+aprovechamiento de las consultas recibidas. La circunstancia resulta
+relevante en un dominio clínico: no corresponde dirigir documentación de
+pacientes a un servicio que la incorpore a sus procesos de entrenamiento. Para
+los casos sintéticos de demostración no presenta inconveniente, pero debe
+considerarse antes de cualquier uso con documentación real.
+
+Claves de API:
+https://aistudio.google.com/apikey (Google) ·
+https://console.groq.com/keys (Groq) ·
+https://cloud.cerebras.ai (Cerebras)
 
 Los proveedores renuevan su línea de modelos y retiran los identificadores
 antiguos con frecuencia, de modo que el valor por defecto puede quedar

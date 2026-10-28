@@ -299,3 +299,25 @@ def test_la_lista_de_respaldo_prioriza_las_generaciones_recientes():
     candidatos = MODELOS_ALTERNATIVOS["google"]
     assert not candidatos[0].startswith("gemini-2."), (
         "la lista no debe encabezarse con una generacion retirada")
+
+
+def test_los_proveedores_compatibles_comparten_implementacion():
+    """
+    Varios proveedores exponen la interfaz de formato OpenAI y se distinguen
+    unicamente por su direccion base, de modo que una misma implementacion
+    los cubre.
+    """
+    from core.llm import DIRECCIONES_COMPATIBLES, PROVEEDORES
+
+    for proveedor in ("groq", "cerebras", "openrouter"):
+        assert proveedor in PROVEEDORES
+        assert proveedor in DIRECCIONES_COMPATIBLES
+        assert DIRECCIONES_COMPATIBLES[proveedor].startswith("https://")
+
+
+def test_cada_proveedor_declara_su_modelo_por_defecto():
+    from core.llm import MODELOS_POR_DEFECTO, PROVEEDORES
+
+    for proveedor in PROVEEDORES:
+        assert MODELOS_POR_DEFECTO.get(proveedor), (
+            f"{proveedor} no declara modelo por defecto")

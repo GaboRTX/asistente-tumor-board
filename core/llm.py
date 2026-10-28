@@ -51,9 +51,12 @@ MODO_SIN_CONEXION = "sin_conexion"
 # modelos admite la clave configurada, y el script de verificacion del
 # entorno informa el resultado.
 MODELOS_POR_DEFECTO = {
-    "google": "gemini-2.5-flash",
+    "google": "gemini-3.5-flash-lite",
     "anthropic": "claude-sonnet-4-5",
     "openai": "gpt-4o-mini",
+    "groq": "llama-3.3-70b-versatile",
+    "cerebras": "llama-3.3-70b",
+    "openrouter": "meta-llama/llama-3.3-70b-instruct:free",
 }
 
 # Modelos a los que el sistema recurre cuando el configurado no resulta
@@ -79,6 +82,10 @@ MODELOS_ALTERNATIVOS = {
     ],
     "anthropic": ["claude-sonnet-4-5", "claude-haiku-4-5"],
     "openai": ["gpt-4o-mini", "gpt-4o"],
+    "groq": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant",
+             "qwen-2.5-32b"],
+    "cerebras": ["llama-3.3-70b", "llama3.1-8b"],
+    "openrouter": ["meta-llama/llama-3.3-70b-instruct:free"],
 }
 
 # Los proveedores suelen consignar en el mensaje de error el identificador
@@ -205,6 +212,57 @@ def _llamar_anthropic(prompt: str, modelo: str) -> str:
     return "".join(b.get("text", "") for b in datos.get("content", []))
 
 
+# Varios proveedores exponen una interfaz compatible con el formato de
+# OpenAI, de modo que una misma implementacion los cubre a todos. Se
+# distinguen unicamente por su direccion base.
+#
+# Los niveles gratuitos que no requieren medio de pago se financian, segun
+# los propios proveedores, mediante el aprovechamiento de las consultas
+# recibidas. Esta circunstancia resulta relevante en un dominio clinico: no
+# corresponde dirigir documentacion de pacientes a un servicio que la
+# incorpore a sus procesos de entrenamiento, aun cuando el sistema solo
+# transmita fragmentos. Para los casos sinteticos de demostracion no
+# presenta inconveniente, pero debe considerarse antes de cualquier uso con
+# documentacion real.
+DIRECCIONES_COMPATIBLES = {
+    "openai": "https://api.openai.com/v1",
+    "groq": "https://api.groq.com/openai/v1",
+    "cerebras": "https://api.cerebras.ai/v1",
+    "openrouter": "https://openrouter.ai/api/v1",
+}
+
+
+def _llamar_compatible(prompt: str, modelo: str, proveedor: str) -> str:
+    """Invoca un proveedor que expone la interfaz de formato OpenAI."""
+    import requests
+
+    base = DIRECCIONES_COMPATIBLES.get(proveedor,
+                                       DIRECCIONES_COMPATIBLES["openai"])
+    respuesta = requests.post(
+        f"{base}/chat/completions",
+        headers={"Content-Type": "application/json",
+                 "Authorization": f"Bearer {CLAVE_API_LLM}"},
+        json={"model": modelo, "temperature": 0.1,
+              "messages": [{"role": "user", "content": prompt}]},
+        timeout=TIMEOUT_RED,
+    )
+    _verificar_respuesta(respuesta)
+    datos = respuesta.json()
+    return datos["choices"][0]["message"]["content"]
+
+
+def _llamar_groq(prompt: str, modelo: str) -> str:
+    return _llamar_compatible(prompt, modelo, "groq")
+
+
+def _llamar_cerebras(prompt: str, modelo: str) -> str:
+    return _llamar_compatible(prompt, modelo, "cerebras")
+
+
+def _llamar_openrouter(prompt: str, modelo: str) -> str:
+    return _llamar_compatible(prompt, modelo, "openrouter")
+
+
 def _llamar_openai(prompt: str, modelo: str) -> str:
     import requests
 
@@ -225,6 +283,9 @@ PROVEEDORES = {
     "google": _llamar_google,
     "anthropic": _llamar_anthropic,
     "openai": _llamar_openai,
+    "groq": _llamar_groq,
+    "cerebras": _llamar_cerebras,
+    "openrouter": _llamar_openrouter,
 }
 
 
