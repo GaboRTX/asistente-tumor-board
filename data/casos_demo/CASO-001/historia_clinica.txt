@@ -1,0 +1,27 @@
+HISTORIA CLINICA - CASO-001
+Documento sintetico de demostracion. No corresponde a un paciente real.
+
+Paciente de 41 años, sexo masculino, diestro.
+
+MOTIVO DE CONSULTA: Cefalea holocraneana de tres meses de evolucion, progresiva,
+de predominio matinal, asociada en el ultimo mes a dos episodios de crisis
+convulsivas tonico-clonicas generalizadas.
+
+ENFERMEDAD ACTUAL: Consulta por guardia tras el segundo episodio convulsivo.
+Al examen neurologico se constata leve hemiparesia braquial derecha (fuerza 4/5)
+y dificultad en la denominacion. No presenta alteracion del sensorio.
+Escala de Karnofsky al ingreso: 80.
+
+ANTECEDENTES PERSONALES: Hipertension arterial en tratamiento con enalapril.
+Tabaquista de 15 paquetes/año, cesado hace 4 años. Niega alergias medicamentosas.
+Sin antecedentes oncologicos previos.
+
+ANTECEDENTES FAMILIARES: Madre con carcinoma de mama a los 62 años.
+Sin antecedentes de tumores del sistema nervioso central.
+
+EVOLUCION: Se realiza exeresis macroscopicamente completa de la lesion mediante
+craneotomia frontal izquierda guiada por neuronavegacion. Buena evolucion
+posoperatoria, sin nuevo deficit focal. Karnofsky posoperatorio: 90.
+Posteriormente inicia radioterapia conformada 59.4 Gy en 33 fracciones,
+seguida de temozolomida adyuvante segun esquema estandar, completando 6 ciclos.
+Actualmente en seguimiento, asintomatico.

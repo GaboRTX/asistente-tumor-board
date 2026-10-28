@@ -1,0 +1,22 @@
+INFORME ANATOMOPATOLOGICO - CASO-003
+Documento sintetico de demostracion.
+
+MATERIAL REMITIDO: Pieza de reseccion tumoral, lobulo temporal izquierdo.
+
+DESCRIPCION MICROSCOPICA: Proliferacion glial de densidad celular moderada,
+constituida por celulas de nucleos redondeados y regulares, con halo
+perinuclear claro que confiere el aspecto clasico en huevo frito.
+
+Se observa red capilar ramificada de disposicion delicada. Actividad mitotica
+escasa, con 1 mitosis por 10 campos de gran aumento. No se identifica
+proliferacion microvascular ni necrosis.
+
+INMUNOHISTOQUIMICA:
+- GFAP: positivo focal.
+- IDH1 R132H: positivo.
+- ATRX: expresion nuclear conservada.
+- p53: sin sobreexpresion.
+- Ki-67: indice proliferativo del 4%.
+
+DIAGNOSTICO: Oligodendroglioma, IDH mutado y con codeleccion 1p/19q,
+grado 2 de la OMS (Clasificacion OMS 2021).

@@ -1,0 +1,18 @@
+INFORME DE SECUENCIACION GENOMICA - CASO-002
+Documento sintetico de demostracion.
+
+METODO: Secuenciacion de nueva generacion, panel de tumores del sistema
+nervioso central. Metilacion de MGMT por pirosecuenciacion.
+
+RESULTADOS:
+- IDH1 e IDH2: no se detectan mutaciones. Perfil IDH wild-type.
+- Promotor de TERT: mutacion C228T detectada.
+- EGFR: amplificacion presente. Se identifica ademas la variante EGFRvIII.
+- Codeleccion 1p/19q: no se evidencia.
+- Promotor de MGMT: no metilado.
+- CDKN2A/B: delecion homocigota presente.
+- Ganancia del cromosoma 7 y perdida del cromosoma 10.
+
+INTERPRETACION: Perfil molecular caracteristico de glioblastoma IDH wild-type.
+El estado no metilado del promotor de MGMT se asocia a menor sensibilidad
+a agentes alquilantes.

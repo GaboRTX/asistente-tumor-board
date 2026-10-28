@@ -1,0 +1,9 @@
+CASO-005 - MOLECULAR
+Documento sintetico de demostracion.
+
+IDH1/2: wild-type.
+MGMT: metilacion del promotor: ausente.
+1p/19q: conservados.
+TERT promotor: mutado (C228T).
+EGFR: sin amplificacion.
+TP53: sin mutacion.

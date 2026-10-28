@@ -1,0 +1,153 @@
+{
+  "_advertencia": "MUESTRA DE REFERENCIA PARA DEMOSTRACION SIN CONEXION. Los criterios de elegibilidad estan resumidos y no sustituyen al protocolo original de cada estudio. Regenerar con datos reales mediante scripts/construir_cache_ensayos.py --regenerar antes de cualquier uso que no sea la demostracion del sistema.",
+  "_origen": "muestra_de_referencia",
+  "estudios": [
+    {
+      "nct": "NCT04164901",
+      "titulo": "Estudio de vorasidenib en glioma de bajo grado con mutacion de IDH",
+      "fase": "Fase 3",
+      "estado": "ACTIVE_NOT_RECRUITING",
+      "condiciones": [
+        "Glioma",
+        "Astrocytoma",
+        "Oligodendroglioma"
+      ],
+      "intervenciones": [
+        "Vorasidenib",
+        "Placebo"
+      ],
+      "paises": [
+        "United States",
+        "France",
+        "Germany"
+      ],
+      "criterios": "Inclusion: histologically confirmed grade 2 glioma with documented IDH1 or IDH2 mutation (IDH mutant). Residual or recurrent disease after surgery. No prior systemic anticancer therapy. Exclusion: IDH wild-type tumors. Prior radiotherapy for glioma. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    },
+    {
+      "nct": "NCT02152982",
+      "titulo": "Radioterapia con o sin quimioterapia en glioma de grado 2 con codeleccion 1p/19q",
+      "fase": "Fase 3",
+      "estado": "ACTIVE_NOT_RECRUITING",
+      "condiciones": [
+        "Oligodendroglioma",
+        "Brain Neoplasm"
+      ],
+      "intervenciones": [
+        "Radiation Therapy",
+        "Temozolomide"
+      ],
+      "paises": [
+        "United States",
+        "Canada"
+      ],
+      "criterios": "Inclusion: newly diagnosed grade 2 oligodendroglioma with 1p/19q co-deleted status confirmed by FISH and IDH mutant status. Exclusion: non-co-deleted tumors. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    },
+    {
+      "nct": "NCT03970447",
+      "titulo": "Terapia dirigida en glioblastoma con promotor de MGMT no metilado",
+      "fase": "Fase 2",
+      "estado": "RECRUITING",
+      "condiciones": [
+        "Glioblastoma"
+      ],
+      "intervenciones": [
+        "Investigational agent",
+        "Radiation Therapy"
+      ],
+      "paises": [
+        "United States"
+      ],
+      "criterios": "Inclusion: newly diagnosed glioblastoma, IDH wild-type, with unmethylated MGMT promoter status. Karnofsky performance status 70 or higher. Exclusion: methylated MGMT promoter. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    },
+    {
+      "nct": "NCT02autogen1",
+      "titulo": "Inmunoterapia dirigida a EGFRvIII en glioblastoma recurrente",
+      "fase": "Fase 1",
+      "estado": "RECRUITING",
+      "condiciones": [
+        "Glioblastoma",
+        "Recurrent Glioblastoma"
+      ],
+      "intervenciones": [
+        "CAR-T cell therapy"
+      ],
+      "paises": [
+        "United States"
+      ],
+      "criterios": "Inclusion: recurrent glioblastoma with documented EGFR amplification and EGFRvIII variant expression. IDH wild-type. Exclusion: absence of EGFRvIII. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    },
+    {
+      "nct": "NCT02autogen2",
+      "titulo": "Estudio de agente alquilante en glioma con promotor de MGMT metilado",
+      "fase": "Fase 2",
+      "estado": "RECRUITING",
+      "condiciones": [
+        "Glioma",
+        "Astrocytoma"
+      ],
+      "intervenciones": [
+        "Temozolomide",
+        "Investigational agent"
+      ],
+      "paises": [
+        "Argentina",
+        "Brazil",
+        "Spain"
+      ],
+      "criterios": "Inclusion: high grade glioma with methylated MGMT promoter. Age 18 to 75 years. Adequate organ function. Exclusion: unmethylated MGMT promoter. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    },
+    {
+      "nct": "NCT02autogen3",
+      "titulo": "Estudio observacional de calidad de vida en tumores cerebrales primarios",
+      "fase": "No especificada",
+      "estado": "RECRUITING",
+      "condiciones": [
+        "Brain Tumor",
+        "Glioma"
+      ],
+      "intervenciones": [
+        "Observational"
+      ],
+      "paises": [
+        "Argentina"
+      ],
+      "criterios": "Inclusion: adults with a primary brain tumor diagnosis undergoing active treatment. No molecular marker requirement. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    },
+    {
+      "nct": "NCT02autogen4",
+      "titulo": "Terapia de combinacion en astrocitoma IDH mutante de alto grado",
+      "fase": "Fase 2",
+      "estado": "RECRUITING",
+      "condiciones": [
+        "Astrocytoma",
+        "Glioma"
+      ],
+      "intervenciones": [
+        "Investigational inhibitor",
+        "Temozolomide"
+      ],
+      "paises": [
+        "United States",
+        "Italy"
+      ],
+      "criterios": "Inclusion: grade 3 or 4 astrocytoma, IDH mutant, non-co-deleted 1p/19q. Prior radiotherapy permitted. Exclusion: IDH wild-type tumors, 1p/19q co-deleted tumors. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    },
+    {
+      "nct": "NCT02autogen5",
+      "titulo": "Estudio de inhibidor de TERT en glioma con mutacion del promotor",
+      "fase": "Fase 1",
+      "estado": "RECRUITING",
+      "condiciones": [
+        "Glioma",
+        "Glioblastoma"
+      ],
+      "intervenciones": [
+        "Investigational agent"
+      ],
+      "paises": [
+        "United States"
+      ],
+      "criterios": "Inclusion: recurrent glioma with documented TERT promoter mutation (C228T or C250T). Exclusion: none specified for other markers. ABRIDGED SUMMARY, NOT THE FULL PROTOCOL."
+    }
+  ]
+}

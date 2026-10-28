@@ -1,0 +1,23 @@
+INFORME ANATOMOPATOLOGICO - CASO-001
+Documento sintetico de demostracion.
+
+MATERIAL REMITIDO: Pieza de reseccion tumoral, region frontal izquierda.
+
+DESCRIPCION MACROSCOPICA: Fragmentos de tejido blanquecino-grisaceo,
+de consistencia blanda, que en conjunto miden 3.8 x 2.9 x 1.6 cm.
+
+DESCRIPCION MICROSCOPICA: Proliferacion glial difusamente infiltrante,
+constituida por celulas de nucleos irregulares e hipercromaticos, con moderado
+pleomorfismo nuclear. Se identifican figuras de mitosis, con recuento de
+5 mitosis por 10 campos de gran aumento. No se observa proliferacion
+microvascular ni necrosis en el material examinado.
+
+INMUNOHISTOQUIMICA:
+- GFAP: positivo difuso.
+- IDH1 R132H: positivo nuclear y citoplasmatico.
+- ATRX: perdida de expresion nuclear en celulas tumorales.
+- p53: sobreexpresion nuclear en aproximadamente 60% de las celulas.
+- Ki-67: indice proliferativo del 12%.
+
+DIAGNOSTICO: Astrocitoma IDH mutado, grado 3 de la OMS (Clasificacion OMS 2021
+de Tumores del Sistema Nervioso Central).

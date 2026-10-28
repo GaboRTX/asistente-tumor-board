@@ -1,0 +1,8 @@
+CASO-005 - ANATOMIA PATOLOGICA
+Documento sintetico de demostracion.
+
+Material: reseccion occipital izquierda.
+Micro: proliferacion glial infiltrante, atipia marcada, mitosis frecuentes
+(11/10 CGA), necrosis presente, proliferacion microvascular presente.
+IHQ: GFAP +, IDH1 R132H negativo, ATRX conservado, Ki67 30%.
+Dx: Glioblastoma IDH wild-type grado 4 OMS 2021.

@@ -1,0 +1,23 @@
+# Configuracion local con credenciales
+.env
+
+# Datos generados en tiempo de ejecucion
+data/asistente.db
+data/almacen/
+data/salidas/
+
+# Entorno de Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Herramientas
+.pytest_cache/
+.streamlit/secrets.toml
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

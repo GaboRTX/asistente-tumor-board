@@ -1,0 +1,20 @@
+INFORME ANATOMOPATOLOGICO - CASO-004
+Documento sintetico de demostracion.
+
+MATERIAL REMITIDO: Cilindros de biopsia estereotaxica, region frontal derecha.
+
+DESCRIPCION MICROSCOPICA: Escaso material constituido por tejido glial con
+aumento de la celularidad y atipia nuclear moderada. Se identifican algunas
+figuras mitoticas. El material resulta insuficiente para una evaluacion
+completa de necrosis y proliferacion microvascular.
+
+INMUNOHISTOQUIMICA:
+- GFAP: positivo.
+- IDH1 R132H: negativo.
+- Ki-67: indice proliferativo aproximado del 18%.
+
+DIAGNOSTICO: Glioma difuso de alto grado. Se sugiere ampliar estudios
+moleculares para tipificacion definitiva segun clasificacion OMS 2021.
+
+NOTA: El estudio de metilacion del promotor de MGMT no resulta valorable por
+material insuficiente.

@@ -1,0 +1,21 @@
+INFORME ANATOMOPATOLOGICO - CASO-002
+Documento sintetico de demostracion.
+
+MATERIAL REMITIDO: Tejido de reseccion tumoral, region parietal derecha.
+
+DESCRIPCION MICROSCOPICA: Neoplasia glial de alta celularidad, difusamente
+infiltrante, con marcado pleomorfismo nuclear y elevada actividad mitotica
+(14 mitosis por 10 campos de gran aumento).
+
+Se observan extensas areas de necrosis con patron de seudoempalizada
+perinecrotica, asi como proliferacion microvascular con formacion de
+estructuras glomeruloides.
+
+INMUNOHISTOQUIMICA:
+- GFAP: positivo.
+- IDH1 R132H: negativo.
+- ATRX: expresion nuclear conservada.
+- Ki-67: indice proliferativo del 35%.
+
+DIAGNOSTICO: Glioblastoma, IDH wild-type, grado 4 de la OMS
+(Clasificacion OMS 2021 de Tumores del Sistema Nervioso Central).

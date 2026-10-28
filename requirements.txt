@@ -1,0 +1,22 @@
+# Dependencias del asistente de preparacion de casos para junta de neuro-oncologia
+# Instalacion:  pip install -r requirements.txt
+
+# --- Nucleo (obligatorias) --------------------------------------------------
+streamlit>=1.30
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.3          # motor de recuperacion TF-IDF (modo de respaldo)
+requests>=2.31             # API de ClinicalTrials.gov y proveedores de LLM
+pypdf>=4.0                 # lectura de documentos en PDF
+reportlab>=4.0             # exportacion del reporte final a PDF
+python-dotenv>=1.0         # lectura de la configuracion desde archivo .env
+
+# --- Recuperacion semantica (recomendada) -----------------------------------
+# Habilita el motor de embeddings multilingues. Sin esta dependencia el
+# sistema opera con el motor TF-IDF, que no requiere descarga de modelos.
+# La primera ejecucion descarga el modelo (aproximadamente 470 MB) y requiere
+# conexion a internet; luego opera sin conexion.
+sentence-transformers>=2.2
+
+# --- Desarrollo -------------------------------------------------------------
+pytest>=7.4

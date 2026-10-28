@@ -1,0 +1,24 @@
+HISTORIA CLINICA - CASO-002
+Documento sintetico de demostracion. No corresponde a un paciente real.
+
+Paciente de 67 años, sexo femenino.
+
+MOTIVO DE CONSULTA: Cuadro de instalacion subaguda, de aproximadamente cinco
+semanas de evolucion, caracterizado por deterioro cognitivo progresivo,
+desorientacion temporoespacial y episodios de confusion.
+
+ENFERMEDAD ACTUAL: La familia refiere cambios en el comportamiento y dificultad
+para realizar tareas habituales. En la ultima semana se agrega hemiparesia
+faciobraquial izquierda de instalacion progresiva. Escala de Karnofsky: 60.
+
+ANTECEDENTES PERSONALES: Diabetes mellitus tipo 2 en tratamiento con metformina.
+Dislipemia. Hipotiroidismo en tratamiento sustitutivo con levotiroxina.
+Sin antecedentes oncologicos.
+
+ANTECEDENTES FAMILIARES: Sin datos relevantes.
+
+EVOLUCION: Se realiza reseccion subtotal de la lesion por craneotomia
+parietal derecha. Posoperatorio con mejoria parcial del cuadro cognitivo.
+Inicia tratamiento con radioterapia 60 Gy en 30 fracciones con temozolomida
+concomitante segun protocolo. Completa la fase concomitante con buena tolerancia.
+Se encuentra cursando el tercer ciclo de temozolomida adyuvante.

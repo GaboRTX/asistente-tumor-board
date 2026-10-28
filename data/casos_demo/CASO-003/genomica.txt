@@ -1,0 +1,19 @@
+INFORME DE SECUENCIACION GENOMICA - CASO-003
+Documento sintetico de demostracion.
+
+METODO: Secuenciacion de nueva generacion e hibridacion in situ fluorescente
+(FISH) para 1p/19q.
+
+RESULTADOS:
+- IDH1: mutacion p.R132H detectada.
+- Codeleccion 1p/19q: presente por FISH. Perdida combinada completa de los
+  brazos cromosomicos 1p y 19q.
+- Promotor de TERT: mutacion C228T detectada.
+- ATRX: sin mutacion.
+- TP53: sin mutacion.
+- Promotor de MGMT: metilado, nivel de metilacion 55%.
+- CIC: mutacion detectada.
+
+INTERPRETACION: Perfil molecular diagnostico de oligodendroglioma IDH mutado
+con codeleccion 1p/19q, asociado a mejor pronostico y mayor sensibilidad al
+tratamiento con quimioterapia.

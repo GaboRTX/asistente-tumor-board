@@ -1,0 +1,19 @@
+INFORME DE SECUENCIACION GENOMICA - CASO-001
+Documento sintetico de demostracion.
+
+METODO: Secuenciacion de nueva generacion (NGS), panel dirigido de tumores
+del sistema nervioso central. Analisis de metilacion por pirosecuenciacion.
+
+RESULTADOS:
+- IDH1: mutacion p.R132H detectada (variante patogenica).
+- IDH2: no se detectan variantes.
+- Codeleccion 1p/19q: ausente. Se conserva material en ambos brazos cromosomicos.
+- Promotor de MGMT: metilado. Nivel de metilacion 42%.
+- ATRX: mutacion con perdida de funcion.
+- TP53: mutacion p.R273C detectada.
+- Promotor de TERT: no se detecta mutacion.
+- EGFR: sin amplificacion.
+- CDKN2A/B: sin delecion homocigota.
+
+INTERPRETACION: Perfil molecular compatible con astrocitoma IDH mutado.
+La ausencia de delecion homocigota de CDKN2A/B es consistente con grado 3.
