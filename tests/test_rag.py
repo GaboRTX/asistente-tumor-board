@@ -321,3 +321,74 @@ def test_cada_proveedor_declara_su_modelo_por_defecto():
     for proveedor in PROVEEDORES:
         assert MODELOS_POR_DEFECTO.get(proveedor), (
             f"{proveedor} no declara modelo por defecto")
+
+
+def test_el_proveedor_local_no_exige_credencial():
+    """
+    La ejecucion local corre en el propio equipo y no media autenticacion, de
+    modo que la ausencia de clave no debe degradar el sistema al modo
+    determinista cuando se selecciono ese proveedor.
+    """
+    import importlib
+    import core.llm as llm
+
+    original_proveedor = llm.PROVEEDOR_LLM
+    original_clave = llm.CLAVE_API_LLM
+    try:
+        llm.PROVEEDOR_LLM = "ollama"
+        llm.CLAVE_API_LLM = ""
+        proveedor, modelo = llm.detectar_proveedor()
+        assert proveedor == "ollama", (
+            "sin clave, el proveedor local debe seguir seleccionado")
+        assert modelo, "debe resolverse un modelo por defecto"
+    finally:
+        llm.PROVEEDOR_LLM = original_proveedor
+        llm.CLAVE_API_LLM = original_clave
+        importlib.reload(llm)
+
+
+def test_el_proveedor_local_apunta_al_propio_equipo():
+    """
+    La direccion del proveedor local debe resolver en el equipo donde corre el
+    sistema. De ello depende el argumento de confidencialidad: la
+    documentacion no abandona la institucion.
+    """
+    from core.llm import DIRECCIONES_COMPATIBLES, PROVEEDORES
+
+    assert "ollama" in PROVEEDORES
+    direccion = DIRECCIONES_COMPATIBLES["ollama"]
+    assert "localhost" in direccion or "127.0.0.1" in direccion
+
+
+def test_la_ausencia_de_clave_no_emite_cabecera_de_autorizacion(monkeypatch):
+    """
+    Al operar contra el servicio local no corresponde enviar una cabecera de
+    autorizacion vacia, que algunos servidores rechazan.
+    """
+    import requests
+
+    import core.llm as llm
+
+    capturadas = {}
+
+    class RespuestaFalsa:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            return {"choices": [{"message": {"content": "resumen"}}]}
+
+        text = ""
+
+    def post_falso(url, headers=None, json=None, timeout=None):
+        capturadas["headers"] = headers or {}
+        capturadas["url"] = url
+        return RespuestaFalsa()
+
+    monkeypatch.setattr(llm, "CLAVE_API_LLM", "")
+    monkeypatch.setattr(requests, "post", post_falso)
+
+    llm._llamar_compatible("prompt de prueba", "llama3.2:3b", "ollama")
+
+    assert "Authorization" not in capturadas["headers"]
+    assert "localhost" in capturadas["url"]

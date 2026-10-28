@@ -57,6 +57,7 @@ MODELOS_POR_DEFECTO = {
     "groq": "llama-3.3-70b-versatile",
     "cerebras": "llama-3.3-70b",
     "openrouter": "meta-llama/llama-3.3-70b-instruct:free",
+    "ollama": "llama3.2:3b",
 }
 
 # Modelos a los que el sistema recurre cuando el configurado no resulta
@@ -86,6 +87,7 @@ MODELOS_ALTERNATIVOS = {
              "qwen-2.5-32b"],
     "cerebras": ["llama-3.3-70b", "llama3.1-8b"],
     "openrouter": ["meta-llama/llama-3.3-70b-instruct:free"],
+    "ollama": ["llama3.2:3b", "qwen2.5:3b", "phi3:mini", "gemma2:2b"],
 }
 
 # Los proveedores suelen consignar en el mensaje de error el identificador
@@ -116,12 +118,21 @@ class RespuestaLLM:
 # Deteccion del proveedor
 # ---------------------------------------------------------------------------
 
+# La ejecucion local no requiere credencial: el servicio corre en el propio
+# equipo y no media autenticacion.
+PROVEEDORES_SIN_CLAVE = {"ollama"}
+
+
 def detectar_proveedor() -> Tuple[str, str]:
     """
     Devuelve (proveedor, modelo) segun la configuracion disponible.
 
-    Si no hay clave de API configurada, devuelve el proveedor 'offline'.
+    Si no hay clave de API configurada, devuelve el proveedor 'offline',
+    salvo que el proveedor seleccionado no requiera credencial.
     """
+    if PROVEEDOR_LLM in PROVEEDORES_SIN_CLAVE:
+        return PROVEEDOR_LLM, MODELO_LLM or MODELOS_POR_DEFECTO[PROVEEDOR_LLM]
+
     if not CLAVE_API_LLM:
         return "offline", "reglas-deterministas"
 
@@ -226,6 +237,10 @@ def _llamar_anthropic(prompt: str, modelo: str) -> str:
 # documentacion real.
 DIRECCIONES_COMPATIBLES = {
     "openai": "https://api.openai.com/v1",
+    # Ejecucion local. No requiere clave ni conexion a internet una vez
+    # descargado el modelo, y la documentacion no abandona el equipo, lo que
+    # resulta determinante en un dominio clinico.
+    "ollama": "http://localhost:11434/v1",
     "groq": "https://api.groq.com/openai/v1",
     "cerebras": "https://api.cerebras.ai/v1",
     "openrouter": "https://openrouter.ai/api/v1",
@@ -238,10 +253,13 @@ def _llamar_compatible(prompt: str, modelo: str, proveedor: str) -> str:
 
     base = DIRECCIONES_COMPATIBLES.get(proveedor,
                                        DIRECCIONES_COMPATIBLES["openai"])
+    cabeceras = {"Content-Type": "application/json"}
+    if CLAVE_API_LLM:
+        cabeceras["Authorization"] = f"Bearer {CLAVE_API_LLM}"
+
     respuesta = requests.post(
         f"{base}/chat/completions",
-        headers={"Content-Type": "application/json",
-                 "Authorization": f"Bearer {CLAVE_API_LLM}"},
+        headers=cabeceras,
         json={"model": modelo, "temperature": 0.1,
               "messages": [{"role": "user", "content": prompt}]},
         timeout=TIMEOUT_RED,
@@ -261,6 +279,10 @@ def _llamar_cerebras(prompt: str, modelo: str) -> str:
 
 def _llamar_openrouter(prompt: str, modelo: str) -> str:
     return _llamar_compatible(prompt, modelo, "openrouter")
+
+
+def _llamar_ollama(prompt: str, modelo: str) -> str:
+    return _llamar_compatible(prompt, modelo, "ollama")
 
 
 def _llamar_openai(prompt: str, modelo: str) -> str:
@@ -286,6 +308,7 @@ PROVEEDORES = {
     "groq": _llamar_groq,
     "cerebras": _llamar_cerebras,
     "openrouter": _llamar_openrouter,
+    "ollama": _llamar_ollama,
 }
 
 

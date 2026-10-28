@@ -65,12 +65,36 @@ exige configurar un medio de pago.
 
 | Proveedor | Medio de pago | Observación |
 |---|---|---|
+| `ollama` | No requerido | Ejecución local, sin clave de API |
 | `google` | Según el proyecto | Modelos Gemini |
 | `groq` | No requerido | Modelos de pesos abiertos |
 | `cerebras` | No requerido | Modelos de pesos abiertos |
 | `openrouter` | No requerido | Acceso unificado |
 | `anthropic` | Requerido | Modelos Claude |
 | `openai` | Requerido | Modelos GPT |
+
+### Ejecución local
+
+La alternativa `ollama` ejecuta el modelo de lenguaje en el propio equipo. No
+requiere clave de API, medio de pago ni conexión a internet una vez descargado
+el modelo, y la documentación procesada no abandona la máquina. Esta última
+propiedad es la relevante en el dominio clínico: resuelve la objeción de
+confidencialidad que pesa sobre cualquier servicio remoto.
+
+```bash
+# 1. Instalar Ollama desde https://ollama.com (instalador para Windows)
+# 2. Descargar un modelo (una sola vez, alrededor de 2 GB)
+ollama pull llama3.2:3b
+# 3. Configurar el proyecto
+#    en el archivo .env:  PROVEEDOR_LLM=ollama
+```
+
+Hecho esto, la interfaz genera los resúmenes mediante el modelo local. El
+servicio queda escuchando en `http://localhost:11434`, de modo que el sistema
+lo detecta sin configuración adicional. Un modelo de tres mil millones de
+parámetros resulta suficiente para la tarea de redacción solicitada, dado que
+la extracción de los datos estructurados corre por cuenta de las reglas
+deterministas y no del modelo.
 
 Los proveedores declaran financiar sus niveles gratuitos mediante el
 aprovechamiento de las consultas recibidas. La circunstancia resulta

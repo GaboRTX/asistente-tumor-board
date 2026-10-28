@@ -192,20 +192,115 @@ PATRONES_CAMPO = {
 }
 
 
+# Los documentos clinicos intercalan encabezados de seccion entre las
+# afirmaciones. Incorporarlos al resumen produce un texto entrecortado, del
+# tipo "Varon de 41 anios. DATOS DEL PACIENTE Karnofsky 90".
+PATRON_ENCABEZADO = re.compile(
+    r"^[A-ZÁÉÍÓÚÑ0-9 ,.:/()-]{3,}$")
+
+
+# Los documentos incorporan leyendas sobre su propia naturaleza, como los
+# avisos de confidencialidad o la constancia de que se trata de material de
+# demostracion. Constituyen metadatos del documento y no informacion
+# asistencial, de modo que no corresponde incorporarlas al resumen.
+PATRON_LEYENDA = re.compile(
+    r"documento sintetico|no corresponde a un paciente real|"
+    r"material de demostracion|documento de demostracion|"
+    r"uso exclusivo|confidencial|prohibida su reproduccion|"
+    r"este informe (?:no )?debe|pagina \d+ de \d+",
+    re.IGNORECASE)
+
+
+def _es_leyenda(oracion: str) -> bool:
+    """Indica si la oracion describe al documento y no al paciente."""
+    return bool(PATRON_LEYENDA.search(oracion))
+
+
+def _es_encabezado(oracion: str) -> bool:
+    """
+    Indica si la linea corresponde a un encabezado de seccion.
+
+    Se consideran tales las lineas escritas integramente en mayusculas, que
+    en la documentacion clinica delimitan secciones y no contienen
+    informacion asistencial.
+    """
+    limpia = oracion.strip().rstrip(":").strip()
+    if len(limpia) < 3:
+        return True
+    letras = [c for c in limpia if c.isalpha()]
+    if not letras:
+        return True
+    return all(c.isupper() for c in letras)
+
+
+def _normalizar_para_comparar(oracion: str) -> str:
+    """Representacion reducida de una oracion, para detectar repeticiones."""
+    import unicodedata
+    plano = unicodedata.normalize("NFD", oracion.lower())
+    plano = "".join(c for c in plano if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9]+", " ", plano).strip()
+
+
+def _es_redundante(candidata: str, seleccionadas: List[str]) -> bool:
+    """
+    Indica si la oracion reitera informacion ya incorporada al resumen.
+
+    Los documentos repiten un mismo dato en distintos apartados, por ejemplo
+    la escala funcional al ingreso y en el posoperatorio. Sin este control el
+    resumen consigna dos veces la misma afirmacion.
+    """
+    nueva = _normalizar_para_comparar(candidata)
+    if not nueva:
+        return True
+
+    palabras_nuevas = set(nueva.split())
+    for previa in seleccionadas:
+        anterior = _normalizar_para_comparar(previa)
+        if nueva in anterior or anterior in nueva:
+            return True
+        palabras_previas = set(anterior.split())
+        if not palabras_nuevas or not palabras_previas:
+            continue
+        comunes = palabras_nuevas & palabras_previas
+        proporcion = len(comunes) / min(len(palabras_nuevas),
+                                        len(palabras_previas))
+        if proporcion > 0.75:
+            return True
+    return False
+
+
 def _oraciones_relevantes(texto: str, patrones: List[str],
                           maximo: int = 4) -> List[str]:
-    """Selecciona las oraciones que coinciden con mayor cantidad de patrones."""
+    """
+    Selecciona las oraciones de mayor correspondencia con los patrones del
+    campo, descartando los encabezados de seccion y las reiteraciones.
+    """
     oraciones = [o.strip() for o in re.split(r"(?<=[.;])\s+|\n+", texto or "")
                  if o and o.strip()]
+
     puntuadas = []
-    for o in oraciones:
+    for posicion, o in enumerate(oraciones):
+        if _es_encabezado(o) or _es_leyenda(o):
+            continue
         plano = o.lower()
-        puntaje = sum(1 for p in patrones if re.search(p, plano, flags=re.IGNORECASE))
+        puntaje = sum(1 for p in patrones
+                      if re.search(p, plano, flags=re.IGNORECASE))
         if puntaje:
-            puntuadas.append((puntaje, len(o), o))
-    # Mayor cantidad de coincidencias primero; a igual puntaje, la mas breve
+            puntuadas.append((puntaje, posicion, o))
+
+    # Mayor correspondencia primero; a igual correspondencia se conserva el
+    # orden del documento, que refleja la secuencia clinica de los hechos.
     puntuadas.sort(key=lambda t: (-t[0], t[1]))
-    return [o for _, _, o in puntuadas[:maximo]]
+
+    seleccionadas: List[str] = []
+    for _puntaje, _pos, o in puntuadas:
+        if len(seleccionadas) >= maximo:
+            break
+        if _es_redundante(o, seleccionadas):
+            continue
+        seleccionadas.append(o)
+
+    return seleccionadas
 
 
 def generar_campo_determinista(clave: str,
@@ -231,13 +326,18 @@ def generar_campo_determinista(clave: str,
     seleccionadas: List[str] = []
     indices: List[int] = []
 
+    # El control de reiteraciones debe abarcar la totalidad del campo y no
+    # cada fragmento por separado: un mismo dato suele constar en mas de un
+    # documento, por ejemplo la escala funcional en la evaluacion inicial y
+    # en la evolucion posoperatoria.
     for i, (_meta, _score, texto) in enumerate(fragmentos, 1):
         encontradas = _oraciones_relevantes(texto, patrones, maximo=2)
         for o in encontradas:
-            if o not in seleccionadas:
-                seleccionadas.append(o)
-                if i not in indices:
-                    indices.append(i)
+            if _es_redundante(o, seleccionadas):
+                continue
+            seleccionadas.append(o)
+            if i not in indices:
+                indices.append(i)
 
     if not seleccionadas:
         return TEXTO_SIN_DATO, []
