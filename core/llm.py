@@ -59,22 +59,38 @@ MODELOS_POR_DEFECTO = {
 # Modelos a los que el sistema recurre cuando el configurado no resulta
 # accesible, ordenados de mayor a menor disponibilidad.
 #
-# Figurar en el listado del proveedor no implica poder utilizarlo: los
-# modelos mas recientes suelen requerir un nivel de acceso superior y
-# responden con un rechazo por permisos aunque la interfaz los enumere. Por
-# ese motivo la lista comienza por las versiones estables de generaciones
-# anteriores, que son las habitualmente disponibles en los niveles gratuitos.
+# Los proveedores retiran los identificadores ANTIGUOS para las cuentas
+# nuevas y derivan su uso hacia las generaciones recientes, de modo que un
+# modelo estable de hace varios meses puede resultar inaccesible mientras
+# uno posterior si lo esta. La lista refleja ese orden.
+#
+# Cuando el proveedor indica en el mensaje de error que identificador debe
+# utilizarse en reemplazo, el sistema lo antepone a esta lista: una
+# indicacion explicita del proveedor es mas confiable que cualquier orden
+# fijado de antemano, que envejece con cada renovacion de la linea.
 MODELOS_ALTERNATIVOS = {
     "google": [
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-        "gemini-flash-latest",
-        "gemini-flash-lite-latest",
+        "gemini-3.5-flash-lite",
+        "gemini-3.5-flash",
         "gemini-3.1-flash-lite",
+        "gemini-3.6-flash",
+        "gemini-flash-lite-latest",
+        "gemini-flash-latest",
     ],
     "anthropic": ["claude-sonnet-4-5", "claude-haiku-4-5"],
     "openai": ["gpt-4o-mini", "gpt-4o"],
 }
+
+# Los proveedores suelen consignar en el mensaje de error el identificador
+# que corresponde utilizar en reemplazo del retirado.
+PATRON_MODELO_SUGERIDO = re.compile(
+    "use .{0,24}models/([a-z0-9][a-z0-9.-]+)", re.IGNORECASE)
+
+
+def _modelo_sugerido(exc: Exception) -> Optional[str]:
+    """Extrae el identificador que el proveedor propone en reemplazo."""
+    hallazgo = PATRON_MODELO_SUGERIDO.search(str(exc))
+    return hallazgo.group(1) if hallazgo else None
 
 
 @dataclass
@@ -236,17 +252,24 @@ def consultar(prompt: str) -> RespuestaLLM:
     if not MODELO_LLM and proveedor in _MODELO_EFECTIVO:
         modelo = _MODELO_EFECTIVO[proveedor]
 
-    intentos = [modelo] + [m for m in MODELOS_ALTERNATIVOS.get(proveedor, [])
-                           if m != modelo]
+    pendientes = [modelo] + [m for m in MODELOS_ALTERNATIVOS.get(proveedor, [])
+                             if m != modelo]
 
     primer_error = None
-    for indice, candidato in enumerate(intentos):
+    intentados = set()
+
+    while pendientes:
+        candidato = pendientes.pop(0)
+        if candidato in intentados:
+            continue
+        intentados.add(candidato)
+
         try:
             texto = funcion(prompt, candidato)
             if not (texto or "").strip():
                 raise RuntimeError("El proveedor devolvio una respuesta vacia.")
 
-            if indice > 0:
+            if candidato != modelo:
                 _MODELO_EFECTIVO[proveedor] = candidato
             return RespuestaLLM(texto, candidato, MODO_CONECTADO)
 
@@ -255,6 +278,13 @@ def consultar(prompt: str) -> RespuestaLLM:
                 primer_error = (exc, candidato)
             if not _conviene_reintentar(exc):
                 break
+
+            # El proveedor puede indicar el identificador de reemplazo en el
+            # propio mensaje de error. Esa indicacion es mas confiable que el
+            # orden fijado de antemano, por lo que se antepone.
+            sugerido = _modelo_sugerido(exc)
+            if sugerido and sugerido not in intentados:
+                pendientes.insert(0, sugerido)
 
     exc, fallido = primer_error
     return RespuestaLLM("", fallido, MODO_SIN_CONEXION,

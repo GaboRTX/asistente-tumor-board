@@ -262,22 +262,40 @@ def test_solo_se_reintenta_ante_un_rechazo_del_modelo():
     assert not _conviene_reintentar(Exception("Connection timeout"))
 
 
-def test_la_lista_de_respaldo_encabeza_con_versiones_estables():
-    """
-    Figurar en el listado del proveedor no implica acceso efectivo: los
-    modelos mas recientes suelen requerir un nivel superior. La lista de
-    respaldo comienza por versiones estables de generaciones anteriores.
-    """
-    from core.llm import MODELOS_ALTERNATIVOS
-
-    candidatos = MODELOS_ALTERNATIVOS["google"]
-    assert candidatos
-    assert candidatos[0].startswith("gemini-2.5")
-
-
 def test_sin_clave_no_se_verifica_el_modelo():
     from core.llm import verificar_modelo_operativo
 
     operativo, detalle = verificar_modelo_operativo("cualquiera")
     assert operativo is False
     assert "clave" in detalle.lower()
+
+
+def test_se_extrae_el_modelo_que_el_proveedor_sugiere():
+    """
+    Ante un identificador retirado, el proveedor indica en el mensaje de
+    error cual corresponde utilizar. Aprovechar esa indicacion resulta mas
+    confiable que cualquier orden de preferencia fijado de antemano, que
+    envejece con cada renovacion de la linea de modelos.
+    """
+    from core.llm import _modelo_sugerido
+
+    mensaje = ("404 Not Found. This model models/gemini-2.5-flash-lite is no "
+               "longer available to new users. Please update your code to use "
+               "models/gemini-3.5-flash-lite for the new version.")
+
+    assert _modelo_sugerido(Exception(mensaje)) == "gemini-3.5-flash-lite"
+    assert _modelo_sugerido(Exception("403 Forbidden")) is None
+
+
+def test_la_lista_de_respaldo_prioriza_las_generaciones_recientes():
+    """
+    Regresion. Una version preliminar ordenaba la lista de respaldo
+    comenzando por los modelos mas antiguos, bajo el supuesto de que serian
+    los mas accesibles. Los proveedores retiran precisamente esos
+    identificadores para las cuentas nuevas.
+    """
+    from core.llm import MODELOS_ALTERNATIVOS
+
+    candidatos = MODELOS_ALTERNATIVOS["google"]
+    assert not candidatos[0].startswith("gemini-2."), (
+        "la lista no debe encabezarse con una generacion retirada")

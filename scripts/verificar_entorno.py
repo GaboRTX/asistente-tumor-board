@@ -270,8 +270,18 @@ def verificar_llm(listar: bool = False):
     # La enumeracion que ofrece el proveedor no garantiza acceso, de modo que
     # cada candidato se comprueba mediante una solicitud efectiva.
     print(f"  {GRIS}Probando modelos alternativos...{FIN}")
+
     candidatos = [m for m in MODELOS_ALTERNATIVOS.get(proveedor, [])
                   if m != modelo]
+
+    # Si el proveedor indica el identificador de reemplazo en su mensaje de
+    # error, esa indicacion se prueba en primer termino.
+    from core.llm import _modelo_sugerido
+    sugerido = _modelo_sugerido(Exception(detalle))
+    if sugerido and sugerido != modelo:
+        candidatos = [sugerido] + [c for c in candidatos if c != sugerido]
+        print(f"         {GRIS}el proveedor sugiere "
+              f"'{sugerido}'{FIN}")
 
     operativos = []
     for candidato in candidatos:
