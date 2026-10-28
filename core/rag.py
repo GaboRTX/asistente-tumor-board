@@ -211,6 +211,23 @@ PATRON_LEYENDA = re.compile(
     re.IGNORECASE)
 
 
+def _es_oracion_truncada(oracion: str) -> bool:
+    """
+    Indica si la oracion es el remanente de otra, cortada por el limite de un
+    fragmento.
+
+    La fragmentacion se solapa, de modo que la oracion completa suele estar
+    disponible en el fragmento contiguo. Conviene entonces descartar el
+    remanente antes que exhibirlo: una oracion asistencial comienza en
+    mayuscula, en un digito o en un signo de apertura.
+    """
+    texto = (oracion or "").strip()
+    if not texto:
+        return True
+    primero = texto[0]
+    return not (primero.isupper() or primero.isdigit() or primero in "¿¡(\"'")
+
+
 def _es_leyenda(oracion: str) -> bool:
     """Indica si la oracion describe al documento y no al paciente."""
     return bool(PATRON_LEYENDA.search(oracion))
@@ -280,7 +297,7 @@ def _oraciones_relevantes(texto: str, patrones: List[str],
 
     puntuadas = []
     for posicion, o in enumerate(oraciones):
-        if _es_encabezado(o) or _es_leyenda(o):
+        if _es_encabezado(o) or _es_leyenda(o) or _es_oracion_truncada(o):
             continue
         plano = o.lower()
         puntaje = sum(1 for p in patrones

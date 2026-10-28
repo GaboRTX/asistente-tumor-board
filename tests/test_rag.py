@@ -392,3 +392,48 @@ def test_la_ausencia_de_clave_no_emite_cabecera_de_autorizacion(monkeypatch):
 
     assert "Authorization" not in capturadas["headers"]
     assert "localhost" in capturadas["url"]
+
+
+def test_se_descartan_los_remanentes_de_oracion():
+    """
+    Regresion. El solapamiento entre fragmentos deja el comienzo de algunos
+    fragmentos en el interior de una oracion. Ese remanente llegaba al
+    resumen: CASO-001 exhibia "de gadolinio se observa realce heterogeneo".
+
+    La oracion completa esta disponible en el fragmento contiguo, de modo que
+    descartar el remanente no implica perdida de informacion.
+    """
+    from core.rag import _es_oracion_truncada
+
+    assert _es_oracion_truncada("de gadolinio se observa realce heterogeneo.")
+    assert _es_oracion_truncada("tracion de gadolinio.")
+    assert not _es_oracion_truncada(
+        "Tras la administracion de gadolinio se observa realce.")
+    assert not _es_oracion_truncada("42 x 31 mm en el corte axial.")
+
+
+def test_ningun_caso_de_demostracion_exhibe_remanentes():
+    """
+    Verificacion de extremo a extremo sobre el conjunto completo: ninguna
+    oracion del resumen determinista debe comenzar en minuscula.
+    """
+    from pathlib import Path
+
+    from core.ingesta import cargar_caso_demo, procesar_documentos
+    from core.rag import generar_resumen
+
+    directorios = sorted(Path("data/casos_demo").glob("CASO-*"))
+    assert directorios, "no se hallaron casos de demostracion"
+
+    for directorio in directorios:
+        documentos = cargar_caso_demo(directorio)
+        fragmentos = procesar_documentos(directorio.name, documentos)
+        resultado = generar_resumen(fragmentos, forzar_sin_conexion=True)
+        for campo in resultado.campos:
+            for oracion in campo.contenido.split(". "):
+                oracion = oracion.strip()
+                if not oracion:
+                    continue
+                assert oracion[0].isupper() or oracion[0].isdigit(), (
+                    f"{directorio.name} / {campo.clave}: la oracion "
+                    f"'{oracion[:60]}' comienza en minuscula")

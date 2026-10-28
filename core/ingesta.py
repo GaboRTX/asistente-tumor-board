@@ -162,6 +162,23 @@ def _reunir_parrafos(lineas: List[str]) -> str:
 # Fragmentacion
 # ---------------------------------------------------------------------------
 
+def _inicio_de_palabra(texto: str, posicion: int) -> int:
+    """
+    Adelanta la posicion hasta el comienzo de la siguiente palabra.
+
+    El solapamiento entre fragmentos se calcula en caracteres, de modo que
+    puede situarse en el interior de una palabra. Arrancar alli produce
+    fragmentos encabezados por restos como "tracion de gadolinio", que luego
+    aparecen en el resumen y en la cita.
+    """
+    if posicion <= 0 or posicion >= len(texto):
+        return posicion
+    if texto[posicion - 1].isspace() or texto[posicion].isspace():
+        return posicion
+    siguiente = texto.find(" ", posicion)
+    return posicion if siguiente == -1 else siguiente + 1
+
+
 def fragmentar(texto: str,
                tamanio: int = TAMANIO_FRAGMENTO,
                solapamiento: int = SOLAPAMIENTO_FRAGMENTO) -> List[str]:
@@ -199,6 +216,13 @@ def fragmentar(texto: str,
             # Solo se acepta el corte si no deja un fragmento demasiado corto
             if corte > tamanio * 0.45:
                 fin = inicio + corte + 1
+            else:
+                # Sin limite de oracion utilizable, se retrocede al ultimo
+                # espacio. Cortar a mitad de palabra degrada la cita, que es
+                # el elemento que el profesional verifica contra la fuente.
+                espacio = ventana.rfind(" ")
+                if espacio > tamanio * 0.45:
+                    fin = inicio + espacio + 1
 
         pieza = texto[inicio:fin].strip()
         if pieza:
@@ -207,6 +231,7 @@ def fragmentar(texto: str,
         if fin >= largo:
             break
         inicio = max(fin - solapamiento, inicio + 1)
+        inicio = _inicio_de_palabra(texto, inicio)
 
     return fragmentos
 

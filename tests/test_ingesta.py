@@ -134,3 +134,39 @@ def test_procesar_sin_documentos_devuelve_lista_vacia():
 def test_documento_inexistente_produce_error_explicito():
     with pytest.raises(FileNotFoundError):
         procesar_documentos("CASO-TEST", {"historia_clinica": "/no/existe.txt"})
+
+
+def test_los_fragmentos_no_cortan_palabras_por_la_mitad():
+    """
+    Regresion. El corte por limite de caracteres partia palabras, de modo que
+    el fragmento siguiente comenzaba con un resto sin sentido. El defecto se
+    detecto en CASO-001, donde el resumen incorporaba "tracion de gadolinio
+    se observa realce heterogeneo" en lugar de la oracion completa.
+
+    La consecuencia excede lo estetico: la cita que el profesional verifica
+    contra el documento fuente debe reproducir texto existente.
+    """
+    from core.ingesta import fragmentar
+
+    # Texto sin puntuacion terminal, que fuerza el corte por caracteres.
+    texto = " ".join(f"palabra{n:03d}" for n in range(400))
+
+    fragmentos = fragmentar(texto, tamanio=400, solapamiento=80)
+    assert len(fragmentos) > 1, "el caso de prueba debe producir varios cortes"
+
+    vocabulario = set(texto.split())
+    for i, fragmento in enumerate(fragmentos, 1):
+        for palabra in fragmento.split():
+            assert palabra in vocabulario, (
+                f"el fragmento {i} contiene el resto '{palabra}', "
+                "producto de un corte en el interior de una palabra")
+
+
+def test_el_solapamiento_no_arranca_en_mitad_de_palabra():
+    from core.ingesta import _inicio_de_palabra
+
+    texto = "Tras la administracion de gadolinio se observa realce"
+    # Posicion en el interior de "administracion"
+    posicion = texto.index("administracion") + 6
+    corregida = _inicio_de_palabra(texto, posicion)
+    assert texto[corregida:].startswith("de gadolinio")
