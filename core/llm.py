@@ -97,6 +97,43 @@ def detectar_proveedor() -> Tuple[str, str]:
 # Llamada al proveedor
 # ---------------------------------------------------------------------------
 
+def _detalle_del_error(respuesta) -> str:
+    """
+    Extrae el motivo que el proveedor consigna en el cuerpo de la respuesta.
+
+    Ante un rechazo, los proveedores devuelven el codigo de estado en la
+    cabecera y la explicacion en el cuerpo. Descartar el cuerpo deja al
+    usuario frente a un numero sin indicacion de la causa, cuando es
+    precisamente alli donde se informa si la interfaz no esta habilitada, si
+    la clave tiene restricciones o si el modelo requiere otro nivel de acceso.
+    """
+    try:
+        datos = respuesta.json()
+    except Exception:
+        texto = (respuesta.text or "").strip()
+        return texto[:300] if texto else ""
+
+    error = datos.get("error", datos)
+    partes = []
+    if isinstance(error, dict):
+        if error.get("message"):
+            partes.append(str(error["message"]))
+        if error.get("status"):
+            partes.append(f"[{error['status']}]")
+    return " ".join(partes)[:400]
+
+
+def _verificar_respuesta(respuesta) -> None:
+    """Eleva el error del proveedor incorporando el motivo que lo acompania."""
+    if respuesta.status_code < 400:
+        return
+    detalle = _detalle_del_error(respuesta)
+    mensaje = f"{respuesta.status_code} {respuesta.reason}"
+    if detalle:
+        mensaje += f". {detalle}"
+    raise RuntimeError(mensaje)
+
+
 def _llamar_google(prompt: str, modelo: str) -> str:
     import requests
 
@@ -110,7 +147,7 @@ def _llamar_google(prompt: str, modelo: str) -> str:
               "generationConfig": {"temperature": 0.1, "maxOutputTokens": 2048}},
         timeout=TIMEOUT_RED,
     )
-    respuesta.raise_for_status()
+    _verificar_respuesta(respuesta)
     datos = respuesta.json()
     return datos["candidates"][0]["content"]["parts"][0]["text"]
 
@@ -127,7 +164,7 @@ def _llamar_anthropic(prompt: str, modelo: str) -> str:
               "messages": [{"role": "user", "content": prompt}]},
         timeout=TIMEOUT_RED,
     )
-    respuesta.raise_for_status()
+    _verificar_respuesta(respuesta)
     datos = respuesta.json()
     return "".join(b.get("text", "") for b in datos.get("content", []))
 
@@ -143,7 +180,7 @@ def _llamar_openai(prompt: str, modelo: str) -> str:
               "messages": [{"role": "user", "content": prompt}]},
         timeout=TIMEOUT_RED,
     )
-    respuesta.raise_for_status()
+    _verificar_respuesta(respuesta)
     datos = respuesta.json()
     return datos["choices"][0]["message"]["content"]
 
@@ -206,9 +243,20 @@ def _describir_error(exc: Exception, proveedor: str, modelo: str) -> str:
                 f"conocer los modelos habilitados y consigne uno de ellos en "
                 f"MODELO_LLM dentro del archivo .env")
 
-    if "401" in texto or "403" in texto or "api key" in minusculas or "unauthorized" in minusculas:
+    if "403" in texto or "permission" in minusculas or "forbidden" in minusculas:
+        return (f"El proveedor {proveedor} rechazo la solicitud sobre el "
+                f"modelo '{modelo}' por falta de permisos. Motivo informado: "
+                f"{texto}. Verifique que la interfaz de programacion se "
+                f"encuentre habilitada en el proyecto, que la clave no tenga "
+                f"restricciones y que el modelo este disponible para su nivel "
+                f"de acceso. Ejecute "
+                f"'python scripts/verificar_entorno.py --modelos' para "
+                f"conocer los modelos efectivamente habilitados.")
+
+    if "401" in texto or "api key" in minusculas or "unauthorized" in minusculas:
         return (f"La clave de API configurada para {proveedor} fue rechazada. "
-                f"Verifique su validez en el archivo .env")
+                f"Motivo informado: {texto}. Verifique su validez en el "
+                f"archivo .env")
 
     if "429" in texto or "quota" in minusculas or "rate limit" in minusculas:
         return (f"Se alcanzo el limite de uso del proveedor {proveedor}. "

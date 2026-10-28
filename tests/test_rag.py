@@ -212,3 +212,35 @@ def test_sin_clave_no_se_consultan_modelos():
     modelos, mensaje = listar_modelos_disponibles()
     assert modelos == []
     assert ".env" in mensaje
+
+
+def test_el_motivo_informado_por_el_proveedor_se_conserva():
+    """
+    Regresion. El codigo de estado por si solo no indica la causa: el motivo
+    se consigna en el cuerpo de la respuesta. Descartarlo deja al usuario sin
+    saber si debe habilitar la interfaz, revisar las restricciones de la
+    clave o cambiar de modelo.
+    """
+    from core.llm import _describir_error
+
+    mensaje = _describir_error(
+        RuntimeError("403 Forbidden. Generative Language API has not been "
+                     "used in project 123 before or it is disabled. "
+                     "[PERMISSION_DENIED]"),
+        "google", "gemini-3.8-flash")
+
+    assert "has not been used" in mensaje or "disabled" in mensaje
+    assert "gemini-3.8-flash" in mensaje
+
+
+def test_el_cuerpo_del_error_se_extrae_del_json():
+    from core.llm import _detalle_del_error
+
+    class RespuestaSimulada:
+        def json(self):
+            return {"error": {"message": "API key not valid",
+                              "status": "INVALID_ARGUMENT"}}
+
+    detalle = _detalle_del_error(RespuestaSimulada())
+    assert "API key not valid" in detalle
+    assert "INVALID_ARGUMENT" in detalle
