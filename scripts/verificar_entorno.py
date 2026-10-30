@@ -267,6 +267,14 @@ def verificar_llm(listar: bool = False):
 
     advertencia(f"El modelo configurado '{modelo}' no responde", detalle)
 
+    from core.llm import PROVEEDORES_SIN_CLAVE
+
+    if proveedor in PROVEEDORES_SIN_CLAVE:
+        # En ejecucion local el detalle del error ya indica la accion
+        # concreta, sea iniciar el servicio o descargar el modelo. Probar
+        # otros identificadores solo encadenaria descargas ausentes.
+        return
+
     # La enumeracion que ofrece el proveedor no garantiza acceso, de modo que
     # cada candidato se comprueba mediante una solicitud efectiva.
     print(f"  {GRIS}Probando modelos alternativos...{FIN}")
