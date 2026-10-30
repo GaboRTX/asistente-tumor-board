@@ -437,3 +437,45 @@ def test_ningun_caso_de_demostracion_exhibe_remanentes():
                 assert oracion[0].isupper() or oracion[0].isdigit(), (
                     f"{directorio.name} / {campo.clave}: la oracion "
                     f"'{oracion[:60]}' comienza en minuscula")
+
+
+def test_el_servicio_local_detenido_se_informa_como_tal():
+    """
+    El modo de falla mas probable en ejecucion local es que Ollama no se
+    encuentre corriendo. Informarlo como un fallo generico de conexion
+    obligaria a diagnosticar lo que el sistema ya sabe.
+    """
+    from core.llm import _describir_error
+
+    error = Exception(
+        "HTTPConnectionPool(host='localhost', port=11434): Max retries "
+        "exceeded with url: /v1/chat/completions (Caused by "
+        "NewConnectionError('Connection refused'))")
+    mensaje = _describir_error(error, "ollama", "llama3.2:3b")
+
+    assert "ollama" in mensaje.lower()
+    assert "11434" in mensaje or "ejecucion" in mensaje.lower()
+
+
+def test_el_modelo_no_descargado_indica_el_comando_de_descarga():
+    from core.llm import _describir_error
+
+    mensaje = _describir_error(
+        Exception("404 Client Error: Not Found"), "ollama", "qwen2.5:7b")
+
+    assert "ollama pull qwen2.5:7b" in mensaje
+
+
+def test_la_ejecucion_local_no_encadena_modelos_ausentes():
+    """
+    Ante un modelo no descargado no corresponde probar otros identificadores:
+    tampoco estarian descargados, y el encadenamiento solo demoraria el
+    mensaje que indica la descarga necesaria.
+    """
+    from core.llm import _conviene_reintentar
+
+    assert not _conviene_reintentar(
+        Exception("404 Not Found: http://localhost:11434/v1/chat/completions"))
+    # El comportamiento remoto se conserva
+    assert _conviene_reintentar(
+        Exception("404 models/gemini-x is not found for API version v1beta"))

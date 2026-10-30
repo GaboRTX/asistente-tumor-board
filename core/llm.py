@@ -87,7 +87,10 @@ MODELOS_ALTERNATIVOS = {
              "qwen-2.5-32b"],
     "cerebras": ["llama-3.3-70b", "llama3.1-8b"],
     "openrouter": ["meta-llama/llama-3.3-70b-instruct:free"],
-    "ollama": ["llama3.2:3b", "qwen2.5:3b", "phi3:mini", "gemma2:2b"],
+    # En ejecucion local el reintento esta deshabilitado, dado que un modelo
+    # ausente no se resuelve probando otro. La lista documenta las opciones
+    # verificadas, de menor a mayor exigencia de memoria.
+    "ollama": ["llama3.2:3b", "qwen2.5:3b", "qwen2.5:7b", "llama3.1:8b"],
 }
 
 # Los proveedores suelen consignar en el mensaje de error el identificador
@@ -391,6 +394,11 @@ def _conviene_reintentar(exc: Exception) -> bool:
     respuesta sin posibilidad de exito.
     """
     texto = str(exc).lower()
+    if "ollama" in texto or "localhost:11434" in texto or "11434" in texto:
+        # En ejecucion local el modelo esta descargado o no lo esta. Probar
+        # otros identificadores solo encadenaria descargas ausentes y
+        # demoraria el mensaje que indica la descarga necesaria.
+        return False
     if "401" in texto or "api key" in texto or "unauthorized" in texto:
         return False
     if "429" in texto or "quota" in texto or "rate limit" in texto:
@@ -411,6 +419,26 @@ def _describir_error(exc: Exception, proveedor: str, modelo: str) -> str:
     """
     texto = str(exc)
     minusculas = texto.lower()
+
+    # El proveedor local presenta dos modos de falla propios, ambos con una
+    # solucion de una sola linea. Conviene reconocerlos antes que los codigos
+    # genericos de los servicios remotos.
+    if proveedor in PROVEEDORES_SIN_CLAVE:
+        if ("connection" in minusculas or "refused" in minusculas
+                or "max retries" in minusculas
+                or "failed to establish" in minusculas
+                or "newconnectionerror" in minusculas):
+            return ("El servicio local de Ollama no responde en "
+                    "http://localhost:11434. Verifique que Ollama se "
+                    "encuentre en ejecucion: en Windows aparece como un icono "
+                    "en la bandeja del sistema. De no estarlo, abralo desde "
+                    "el menu de inicio, o ejecute 'ollama serve' en una "
+                    "terminal y deje esa ventana abierta.")
+        if "404" in texto or "not found" in minusculas:
+            return (f"El modelo '{modelo}' no se encuentra descargado en este "
+                    f"equipo. Ejecute 'ollama pull {modelo}' en una terminal "
+                    f"y aguarde a que finalice la descarga. Para conocer los "
+                    f"modelos ya disponibles, ejecute 'ollama list'.")
 
     if "404" in texto or "not found" in minusculas:
         return (f"El modelo '{modelo}' no esta disponible para la clave "

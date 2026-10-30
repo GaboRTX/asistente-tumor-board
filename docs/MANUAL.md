@@ -107,6 +107,22 @@ No requiere clave de API ni medio de pago. Durante la defensa conviene
 mencionarlo: es el argumento que separa a este sistema de una consulta a un
 servicio público de inteligencia artificial.
 
+La elección del modelo depende de la memoria del equipo. Conviene comenzar por
+el más liviano y ascender solo si la redacción resulta insuficiente, dado que
+la extracción de los datos estructurados no depende del modelo sino de las
+reglas deterministas.
+
+| Modelo | Descarga | Memoria recomendada |
+|---|---|---|
+| `llama3.2:3b` | 2,0 GB | 8 GB |
+| `qwen2.5:7b` | 4,7 GB | 16 GB |
+| `llama3.1:8b` | 4,7 GB | 16 GB |
+
+Si el modelo indicado no se encuentra descargado, o si el servicio no está en
+ejecución, la interfaz lo informa con el comando exacto que corresponde
+ejecutar. Ante cualquier falla el sistema continúa operando en modo
+determinista, de modo que la demostración no se interrumpe.
+
 El segundo modo no es únicamente un respaldo ante la falta de conexión:
 funciona además como **verificación** del primero. Tras cada generación con
 modelo de lenguaje, el sistema contrasta el resultado contra la extracción
