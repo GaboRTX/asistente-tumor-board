@@ -270,6 +270,11 @@ def _llamar_compatible(prompt: str, modelo: str, proveedor: str) -> str:
         f"{base}/chat/completions",
         headers=cabeceras,
         json={"model": modelo, "temperature": 0.1,
+              # Los modelos de menor tamanio no respetan de manera fiable la
+              # instruccion de responder unicamente con JSON. Solicitarlo al
+              # proveedor restringe la decodificacion y eleva sensiblemente
+              # la tasa de respuestas interpretables.
+              "response_format": {"type": "json_object"},
               "messages": [{"role": "user", "content": prompt}]},
         timeout=_timeout_de(proveedor),
     )
@@ -559,6 +564,38 @@ def listar_modelos_disponibles() -> Tuple[List[str], str]:
 # ---------------------------------------------------------------------------
 # Utilidades de parseo
 # ---------------------------------------------------------------------------
+
+def normalizar_campos(datos: Optional[Dict],
+                      claves_esperadas) -> Optional[Dict]:
+    """
+    Devuelve el diccionario de campos, cualquiera sea la envoltura empleada.
+
+    La estructura solicitada anida los campos bajo la clave "campos". Los
+    modelos de menor tamanio suelen omitir esa envoltura y devolver los
+    campos en el primer nivel, o anidarlos bajo otra denominacion. La
+    respuesta es utilizable en los tres casos, de modo que no corresponde
+    descartarla por la envoltura.
+    """
+    if not isinstance(datos, dict):
+        return None
+
+    esperadas = set(claves_esperadas)
+
+    campos = datos.get("campos")
+    if isinstance(campos, dict) and esperadas & set(campos):
+        return campos
+
+    # Sin envoltura: los campos figuran en el primer nivel.
+    if esperadas & set(datos):
+        return {k: v for k, v in datos.items() if k in esperadas}
+
+    # Envoltura bajo otra denominacion, con un unico objeto anidado.
+    for valor in datos.values():
+        if isinstance(valor, dict) and esperadas & set(valor):
+            return {k: v for k, v in valor.items() if k in esperadas}
+
+    return None
+
 
 def extraer_json(texto: str) -> Optional[Dict]:
     """

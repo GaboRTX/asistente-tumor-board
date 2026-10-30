@@ -523,3 +523,53 @@ def test_la_direccion_local_no_depende_de_la_resolucion_de_localhost():
     from core.llm import DIRECCIONES_COMPATIBLES
 
     assert DIRECCIONES_COMPATIBLES["ollama"].startswith("http://127.0.0.1:")
+
+
+CLAVES = ["datos_clinicos", "antecedentes", "hallazgos_patologia",
+          "perfil_molecular", "hallazgos_imagenes", "tratamientos_previos"]
+
+
+def test_se_admite_la_estructura_solicitada():
+    from core.llm import normalizar_campos
+
+    datos = {"campos": {"datos_clinicos": {"contenido": "Varon de 41 anios.",
+                                           "fragmentos": [1]}}}
+    campos = normalizar_campos(datos, CLAVES)
+    assert campos["datos_clinicos"]["contenido"] == "Varon de 41 anios."
+
+
+def test_se_admite_la_respuesta_sin_envoltura():
+    """
+    Los modelos de menor tamanio omiten con frecuencia la clave "campos" y
+    devuelven los campos en el primer nivel. La respuesta es igualmente
+    utilizable, de modo que descartarla desaprovecha una generacion valida.
+    """
+    from core.llm import normalizar_campos
+
+    datos = {"datos_clinicos": {"contenido": "Varon de 41 anios.",
+                                "fragmentos": [1]},
+             "antecedentes": "Hipertension arterial."}
+    campos = normalizar_campos(datos, CLAVES)
+    assert set(campos) == {"datos_clinicos", "antecedentes"}
+
+
+def test_se_admite_una_envoltura_de_otra_denominacion():
+    from core.llm import normalizar_campos
+
+    datos = {"resumen": {"perfil_molecular": "IDH mutado."}}
+    campos = normalizar_campos(datos, CLAVES)
+    assert campos == {"perfil_molecular": "IDH mutado."}
+
+
+def test_se_rechaza_la_respuesta_sin_ningun_campo_conocido():
+    """
+    La tolerancia no debe alcanzar a una respuesta que no contiene ninguno de
+    los campos solicitados: admitirla produciria un resumen vacio presentado
+    como generado por el modelo.
+    """
+    from core.llm import normalizar_campos
+
+    assert normalizar_campos({"texto": "No puedo ayudarte."}, CLAVES) is None
+    assert normalizar_campos({"campos": {}}, CLAVES) is None
+    assert normalizar_campos(None, CLAVES) is None
+    assert normalizar_campos("texto plano", CLAVES) is None

@@ -497,16 +497,24 @@ def generar_resumen(fragmentos,
 
         if respuesta_modelo.exitosa:
             datos = llm.extraer_json(respuesta_modelo.texto)
-            if datos and isinstance(datos.get("campos"), dict):
+            campos_modelo = llm.normalizar_campos(
+                datos, [clave for clave, _etiqueta in CAMPOS_RESUMEN])
+            if campos_modelo:
                 modo = llm.MODO_CONECTADO
                 modelo = respuesta_modelo.modelo
                 campos = _armar_campos_desde_modelo(
-                    datos["campos"], fragmentos_unicos, correcciones_por_campo
+                    campos_modelo, fragmentos_unicos, correcciones_por_campo
                 )
             else:
+                # Se consigna el comienzo de la respuesta: sin ese dato el
+                # diagnostico exige reproducir la consulta por fuera del
+                # sistema.
+                muestra = (respuesta_modelo.texto or "").strip()[:200]
+                detalle = f' Comienzo de la respuesta recibida: "{muestra}".' \
+                    if muestra else " La respuesta llego vacia."
                 advertencias.append(
                     "La respuesta del modelo no pudo interpretarse; se aplico "
-                    "el procedimiento determinista de respaldo."
+                    "el procedimiento determinista de respaldo." + detalle
                 )
         else:
             advertencias.append(
