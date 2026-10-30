@@ -25,6 +25,7 @@ from typing import Dict, List, Optional, Tuple
 from core import llm
 from core.config import (
     CAMPOS_RESUMEN,
+    CAMPOS_SIEMPRE_DETERMINISTAS,
     TEXTO_SIN_DATO,
     TOP_K_CORRECCIONES,
     TOP_K_FRAGMENTOS,
@@ -387,57 +388,85 @@ def _menciona(texto: str, expresion: str) -> bool:
     return False
 
 
-def verificar_consistencia(campos: List[CampoResumen], perfil) -> List[str]:
+# Pares de polaridad opuesta. La comparacion no puede realizarse por
+# inclusion de subcadena: "no mutado" contiene "mutado", de modo que una
+# verificacion ingenua jamas detectaria la contradiccion.
+VALORES_OPUESTOS = {
+    "mutado": "no mutado", "no mutado": "mutado",
+    "metilado": "no metilado", "no metilado": "metilado",
+    "codelecion presente": "codelecion ausente",
+    "codelecion ausente": "codelecion presente",
+    "amplificado": "no amplificado",
+    "no amplificado": "amplificado",
+    "perdido": "conservado", "conservado": "perdido",
+    "alterado": "no alterado", "no alterado": "alterado",
+}
+
+
+def verificar_consistencia(campos: List[CampoResumen], perfil,
+                           claves_deterministas=frozenset()) -> List[str]:
     """
     Contrasta el resumen generado contra la extraccion determinista.
 
     Devuelve la lista de advertencias detectadas. No modifica el resumen: la
     decision sobre una discrepancia corresponde al profesional.
+
+    La verificacion recae sobre los campos redactados por el modelo de
+    lenguaje. Un campo generado por las propias reglas se contrastaria contra
+    si mismo, de modo que incluirlo produciria una conformidad aparente sin
+    contenido informativo.
     """
     advertencias: List[str] = []
 
-    campo_molecular = next((c for c in campos if c.clave == "perfil_molecular"), None)
-    if campo_molecular and perfil.informados:
+    if not perfil.informados:
+        return _advertencias_de_respaldo(campos)
+
+    # --- Omision de marcadores en el campo molecular -----------------------
+    # Solo corresponde cuando ese campo lo redacto el modelo. Cuando lo genera
+    # la extraccion determinista, la comprobacion seria circular.
+    campo_molecular = next(
+        (c for c in campos if c.clave == "perfil_molecular"), None)
+    if campo_molecular and "perfil_molecular" not in claves_deterministas:
         texto = campo_molecular.contenido.lower()
         for nombre, marcador in perfil.informados.items():
-            nombre_busqueda = nombre.lower().replace("/", "")
-            texto_busqueda = texto.replace("/", "")
-            if nombre_busqueda not in texto_busqueda:
+            if nombre.lower().replace("/", "") not in texto.replace("/", ""):
                 advertencias.append(
                     f"El marcador {nombre} fue detectado en la documentacion "
                     f"({marcador.valor}) pero no aparece en el resumen generado."
                 )
+
+    # --- Contradiccion de polaridad en todo campo redactado por el modelo ---
+    # Un marcador puede mencionarse fuera del campo molecular: el informe
+    # anatomopatologico y la discusion del caso lo hacen con frecuencia. Una
+    # contradiccion alli reviste la misma gravedad y, descartado el campo
+    # molecular de la verificacion, es ademas la unica que resta detectar.
+    for campo in campos:
+        if campo.clave in claves_deterministas or not campo.tiene_dato:
+            continue
+        texto = campo.contenido.lower()
+        for nombre, marcador in perfil.informados.items():
+            if nombre.lower().replace("/", "") not in texto.replace("/", ""):
                 continue
-            # Contradiccion de polaridad.
-            # La comparacion no puede realizarse por inclusion de subcadena:
-            # "no mutado" contiene "mutado", de modo que una verificacion
-            # ingenua nunca detectaria la contradiccion. Se exige que el valor
-            # aparezca delimitado y no precedido de una negacion.
             valor = marcador.valor.lower()
-            opuestos = {
-                "mutado": "no mutado", "no mutado": "mutado",
-                "metilado": "no metilado", "no metilado": "metilado",
-                "codelecion presente": "codelecion ausente",
-                "codelecion ausente": "codelecion presente",
-                "amplificado": "no amplificado",
-                "no amplificado": "amplificado",
-                "perdido": "conservado", "conservado": "perdido",
-            }
-            opuesto = opuestos.get(valor)
+            opuesto = VALORES_OPUESTOS.get(valor)
             if opuesto and _menciona(texto, opuesto) and not _menciona(texto, valor):
                 advertencias.append(
-                    f"Discrepancia en {nombre}: la documentacion indica "
-                    f"'{marcador.valor}' y el resumen consigna '{opuesto}'."
+                    f"Discrepancia en {nombre}, campo '{campo.etiqueta}': la "
+                    f"documentacion indica '{marcador.valor}' y el resumen "
+                    f"consigna '{opuesto}'."
                 )
 
-    for campo in campos:
-        if campo.tiene_dato and not campo.fuentes:
-            advertencias.append(
-                f"El campo '{campo.etiqueta}' presenta contenido sin fragmento "
-                f"de respaldo asociado."
-            )
-
+    advertencias.extend(_advertencias_de_respaldo(campos))
     return advertencias
+
+
+def _advertencias_de_respaldo(campos: List[CampoResumen]) -> List[str]:
+    """Senala todo campo con contenido que carece de fragmento de respaldo."""
+    return [
+        f"El campo '{campo.etiqueta}' presenta contenido sin fragmento "
+        f"de respaldo asociado."
+        for campo in campos if campo.tiene_dato and not campo.fuentes
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -492,18 +521,27 @@ def generar_resumen(fragmentos,
     if not forzar_sin_conexion:
         fragmentos_unicos = _unificar_fragmentos(recuperados_por_campo)
         correcciones_unicas = _unificar_correcciones(correcciones_por_campo)
-        prompt = construir_prompt(CAMPOS_RESUMEN, fragmentos_unicos, correcciones_unicas)
+        # No se solicitan al modelo los campos de generacion determinista
+        # obligatoria: pedir lo que no se utilizara consume contexto y
+        # desplaza la atencion del modelo de los campos que si redacta.
+        campos_para_el_modelo = [
+            (clave, etiqueta) for clave, etiqueta in CAMPOS_RESUMEN
+            if clave not in CAMPOS_SIEMPRE_DETERMINISTAS
+        ]
+        prompt = construir_prompt(campos_para_el_modelo, fragmentos_unicos,
+                                  correcciones_unicas)
         respuesta_modelo = llm.consultar(prompt)
 
         if respuesta_modelo.exitosa:
             datos = llm.extraer_json(respuesta_modelo.texto)
             campos_modelo = llm.normalizar_campos(
-                datos, [clave for clave, _etiqueta in CAMPOS_RESUMEN])
+                datos, [clave for clave, _etiqueta in campos_para_el_modelo])
             if campos_modelo:
                 modo = llm.MODO_CONECTADO
                 modelo = respuesta_modelo.modelo
                 campos = _armar_campos_desde_modelo(
-                    campos_modelo, fragmentos_unicos, correcciones_por_campo
+                    campos_modelo, fragmentos_unicos, correcciones_por_campo,
+                    recuperados_por_campo, perfil
                 )
             else:
                 # Se consigna el comienzo de la respuesta: sin ese dato el
@@ -528,7 +566,17 @@ def generar_resumen(fragmentos,
             recuperados_por_campo, perfil, correcciones_por_campo
         )
 
-    advertencias.extend(verificar_consistencia(campos, perfil))
+    # En modo determinista integro la totalidad de los campos proviene de las
+    # reglas, de modo que no hay nada que contrastar: la verificacion se
+    # reduce entonces al respaldo documental de cada campo.
+    if modo == llm.MODO_CONECTADO:
+        claves_deterministas = CAMPOS_SIEMPRE_DETERMINISTAS
+    else:
+        claves_deterministas = frozenset(
+            clave for clave, _etiqueta in CAMPOS_RESUMEN)
+
+    advertencias.extend(
+        verificar_consistencia(campos, perfil, claves_deterministas))
 
     segundos = time.perf_counter() - inicio
 
@@ -571,9 +619,17 @@ def _unificar_correcciones(correcciones_por_campo) -> List[Dict]:
 
 def _armar_campos_desde_modelo(campos_modelo: Dict,
                                fragmentos_unicos: List[Tuple[Dict, float, str]],
-                               correcciones_por_campo: Dict) -> List[CampoResumen]:
+                               correcciones_por_campo: Dict,
+                               recuperados_por_campo: Optional[Dict] = None,
+                               perfil=None) -> List[CampoResumen]:
     campos: List[CampoResumen] = []
     for clave, etiqueta in CAMPOS_RESUMEN:
+        if clave in CAMPOS_SIEMPRE_DETERMINISTAS:
+            campos.append(_armar_campo_determinista(
+                clave, etiqueta, recuperados_por_campo or {}, perfil,
+                correcciones_por_campo))
+            continue
+
         entrada = campos_modelo.get(clave) or {}
         if isinstance(entrada, str):
             contenido, numeros = entrada, []
@@ -605,25 +661,33 @@ def _armar_campos_desde_modelo(campos_modelo: Dict,
     return campos
 
 
+def _armar_campo_determinista(clave: str, etiqueta: str,
+                              recuperados_por_campo: Dict, perfil,
+                              correcciones_por_campo: Dict) -> CampoResumen:
+    """Arma un unico campo mediante el procedimiento determinista."""
+    recuperados = recuperados_por_campo.get(clave, [])
+    contenido, indices = generar_campo_determinista(clave, recuperados, perfil)
+
+    fuentes = []
+    for i in indices:
+        if 1 <= i <= len(recuperados):
+            meta, _s, texto = recuperados[i - 1]
+            fuentes.append({
+                "etiqueta": meta.get("etiqueta_fuente", ""),
+                "tipo_documento": meta.get("tipo_documento", ""),
+                "texto": texto,
+            })
+
+    return CampoResumen(
+        clave=clave, etiqueta=etiqueta, contenido=contenido, fuentes=fuentes,
+        correcciones_aplicadas=correcciones_por_campo.get(clave, []),
+    )
+
+
 def _armar_campos_deterministas(recuperados_por_campo: Dict, perfil,
                                 correcciones_por_campo: Dict) -> List[CampoResumen]:
-    campos: List[CampoResumen] = []
-    for clave, etiqueta in CAMPOS_RESUMEN:
-        recuperados = recuperados_por_campo.get(clave, [])
-        contenido, indices = generar_campo_determinista(clave, recuperados, perfil)
-
-        fuentes = []
-        for i in indices:
-            if 1 <= i <= len(recuperados):
-                meta, _s, texto = recuperados[i - 1]
-                fuentes.append({
-                    "etiqueta": meta.get("etiqueta_fuente", ""),
-                    "tipo_documento": meta.get("tipo_documento", ""),
-                    "texto": texto,
-                })
-
-        campos.append(CampoResumen(
-            clave=clave, etiqueta=etiqueta, contenido=contenido, fuentes=fuentes,
-            correcciones_aplicadas=correcciones_por_campo.get(clave, []),
-        ))
-    return campos
+    return [
+        _armar_campo_determinista(clave, etiqueta, recuperados_por_campo,
+                                  perfil, correcciones_por_campo)
+        for clave, etiqueta in CAMPOS_RESUMEN
+    ]

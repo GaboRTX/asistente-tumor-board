@@ -114,4 +114,11 @@ CAMPOS_RESUMEN = [
     ("tratamientos_previos", "Tratamientos previos"),
 ]
 
+# El perfil molecular no es prosa sino un conjunto de pares marcador-estado.
+# La extraccion determinista lo produce completo y ordenado, de modo que
+# encomendarlo al modelo de lenguaje no aporta redaccion y si introduce
+# riesgo de omision. Cada tarea se asigna al procedimiento que corresponde:
+# el modelo redacta, las reglas reportan.
+CAMPOS_SIEMPRE_DETERMINISTAS = frozenset({"perfil_molecular"})
+
 TEXTO_SIN_DATO = "No consta en la documentacion aportada."

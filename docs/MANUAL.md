@@ -129,6 +129,29 @@ modelo de lenguaje, el sistema contrasta el resultado contra la extracción
 determinista realizada sobre los mismos documentos y advierte toda
 discrepancia.
 
+#### Qué campo genera cada procedimiento
+
+Los dos procedimientos no compiten por los mismos campos. Cada tarea se asigna
+al que corresponde:
+
+| Campo | Procedimiento |
+|---|---|
+| Datos clínicos, antecedentes, hallazgos anatomopatológicos, hallazgos imagenológicos, tratamientos previos | Modelo de lenguaje |
+| Perfil molecular | Reglas deterministas, siempre |
+
+El perfil molecular no es prosa sino un conjunto de pares marcador-estado. Las
+reglas lo producen completo y ordenado, mientras que un modelo de lenguaje
+tiende a abreviarlo y omitir marcadores. Encomendárselo no aportaría redacción
+y sí introduciría riesgo. **El modelo redacta, las reglas reportan.**
+
+En consecuencia, la verificación de consistencia recae sobre los campos que
+redacta el modelo. Contrastar un campo generado por las reglas contra esas
+mismas reglas produciría una conformidad aparente sin contenido informativo, y
+ocultaría que la verificación dejó de aportar garantía. Lo que se verifica,
+entonces, es que el modelo no **contradiga** los marcadores en los campos
+narrativos, donde el informe anatomopatológico y la discusión del caso los
+mencionan con frecuencia.
+
 ### 2.3 El ciclo de aprendizaje
 
 ```

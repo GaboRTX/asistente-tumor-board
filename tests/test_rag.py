@@ -573,3 +573,109 @@ def test_se_rechaza_la_respuesta_sin_ningun_campo_conocido():
     assert normalizar_campos({"campos": {}}, CLAVES) is None
     assert normalizar_campos(None, CLAVES) is None
     assert normalizar_campos("texto plano", CLAVES) is None
+
+
+# ---------------------------------------------------------------------------
+# Asignacion de cada campo al procedimiento que corresponde
+# ---------------------------------------------------------------------------
+
+def test_el_perfil_molecular_no_se_solicita_al_modelo():
+    """
+    El perfil molecular es un conjunto de pares marcador-estado, no prosa.
+    Encomendarlo al modelo no aporta redaccion y si introduce omisiones.
+    """
+    from core.config import CAMPOS_RESUMEN, CAMPOS_SIEMPRE_DETERMINISTAS
+
+    assert "perfil_molecular" in CAMPOS_SIEMPRE_DETERMINISTAS
+    claves = {clave for clave, _etiqueta in CAMPOS_RESUMEN}
+    assert CAMPOS_SIEMPRE_DETERMINISTAS <= claves
+    # Los campos narrativos siguen a cargo del modelo
+    assert "datos_clinicos" not in CAMPOS_SIEMPRE_DETERMINISTAS
+
+
+def test_el_perfil_molecular_se_arma_por_reglas_aun_con_modelo():
+    """
+    Aun cuando el modelo responda correctamente, el perfil molecular debe
+    provenir de la extraccion determinista y contener todos los marcadores.
+    """
+    from core.ingesta import cargar_caso_demo, procesar_documentos
+    from core.perfil_molecular import extraer_perfil
+    from core.rag import (_armar_campos_desde_modelo, construir_indice,
+                          CONSULTAS_CAMPO)
+    from core.config import CAMPOS_RESUMEN, TOP_K_FRAGMENTOS
+
+    fragmentos = procesar_documentos(
+        "CASO-001", cargar_caso_demo("data/casos_demo/CASO-001"))
+    indice = construir_indice(fragmentos)
+    perfil = extraer_perfil(fragmentos)
+
+    recuperados = {
+        clave: indice.buscar(CONSULTAS_CAMPO.get(clave, clave),
+                             k=TOP_K_FRAGMENTOS)
+        for clave, _etiqueta in CAMPOS_RESUMEN
+    }
+
+    # El modelo no devuelve el campo molecular en absoluto.
+    campos = _armar_campos_desde_modelo(
+        {"datos_clinicos": "Varon de 41 anios."}, [], {}, recuperados, perfil)
+
+    molecular = next(c for c in campos if c.clave == "perfil_molecular")
+    for nombre in perfil.informados:
+        assert nombre.lower().replace("/", "") in \
+            molecular.contenido.lower().replace("/", ""), (
+                f"{nombre} ausente del campo generado por reglas")
+
+
+def test_la_verificacion_no_se_contrasta_contra_si_misma():
+    """
+    Un campo generado por las reglas, contrastado contra esas mismas reglas,
+    produciria una conformidad aparente sin contenido informativo. Peor aun:
+    ocultaria que la verificacion dejo de aportar garantia alguna.
+    """
+    from core.perfil_molecular import extraer_perfil
+    from core.rag import CampoResumen, verificar_consistencia
+
+    perfil = extraer_perfil([
+        {"texto": "IDH1 R132H mutado. Promotor de MGMT metilado.",
+         "tipo_documento": "patologia"}])
+    assert perfil.informados
+
+    campo = CampoResumen(
+        clave="perfil_molecular", etiqueta="Perfil molecular",
+        contenido="Sin marcadores consignados.",
+        fuentes=[{"etiqueta": "f", "tipo_documento": "t", "texto": "t"}])
+
+    # Redactado por el modelo: la omision debe senalarse.
+    con_modelo = verificar_consistencia([campo], perfil, frozenset())
+    assert any("no aparece en el resumen" in a for a in con_modelo)
+
+    # Generado por las reglas: no corresponde contrastarlo contra si mismo.
+    con_reglas = verificar_consistencia(
+        [campo], perfil, frozenset({"perfil_molecular"}))
+    assert not any("no aparece en el resumen" in a for a in con_reglas)
+
+
+def test_se_detecta_la_contradiccion_en_un_campo_narrativo():
+    """
+    Descartado el campo molecular de la verificacion, la garantia que resta es
+    que el modelo no contradiga los marcadores en los campos que si redacta.
+    El informe anatomopatologico los menciona con frecuencia.
+    """
+    from core.perfil_molecular import extraer_perfil
+    from core.rag import CampoResumen, verificar_consistencia
+
+    perfil = extraer_perfil([
+        {"texto": "Se detecta mutacion IDH1 R132H.",
+         "tipo_documento": "patologia"}])
+    assert "IDH" in perfil.informados
+
+    campo = CampoResumen(
+        clave="hallazgos_patologia", etiqueta="Hallazgos anatomopatologicos",
+        contenido="Glioma difuso con IDH no mutado.",
+        fuentes=[{"etiqueta": "f", "tipo_documento": "t", "texto": "t"}])
+
+    advertencias = verificar_consistencia(
+        [campo], perfil, frozenset({"perfil_molecular"}))
+
+    assert any("Discrepancia en IDH" in a for a in advertencias), advertencias
+    assert any("Hallazgos anatomopatologicos" in a for a in advertencias)
