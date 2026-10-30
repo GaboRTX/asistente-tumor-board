@@ -73,6 +73,13 @@ MODELO_LLM = os.getenv("MODELO_LLM", "")
 # Tiempo maximo de espera para llamadas de red (segundos)
 TIMEOUT_RED = 20
 
+# La ejecucion local exige una espera sustancialmente mayor. La primera
+# consulta carga el modelo desde disco a memoria, y la generacion corre sobre
+# el procesador del equipo en lugar de sobre el acelerador de un proveedor.
+# Un limite de veinte segundos interrumpe la primera consulta de manera
+# sistematica, aun cuando el servicio funcione correctamente.
+TIMEOUT_LOCAL = 300
+
 
 # ---------------------------------------------------------------------------
 # Marcadores moleculares contemplados por el sistema

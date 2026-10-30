@@ -90,7 +90,7 @@ ollama pull llama3.2:3b
 ```
 
 Hecho esto, la interfaz genera los resúmenes mediante el modelo local. El
-servicio queda escuchando en `http://localhost:11434`, de modo que el sistema
+servicio queda escuchando en `http://127.0.0.1:11434`, de modo que el sistema
 lo detecta sin configuración adicional. Un modelo de tres mil millones de
 parámetros resulta suficiente para la tarea de redacción solicitada, dado que
 la extracción de los datos estructurados corre por cuenta de las reglas

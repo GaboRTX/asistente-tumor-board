@@ -357,7 +357,7 @@ def test_el_proveedor_local_apunta_al_propio_equipo():
 
     assert "ollama" in PROVEEDORES
     direccion = DIRECCIONES_COMPATIBLES["ollama"]
-    assert "localhost" in direccion or "127.0.0.1" in direccion
+    assert "127.0.0.1" in direccion or "localhost" in direccion
 
 
 def test_la_ausencia_de_clave_no_emite_cabecera_de_autorizacion(monkeypatch):
@@ -391,7 +391,7 @@ def test_la_ausencia_de_clave_no_emite_cabecera_de_autorizacion(monkeypatch):
     llm._llamar_compatible("prompt de prueba", "llama3.2:3b", "ollama")
 
     assert "Authorization" not in capturadas["headers"]
-    assert "localhost" in capturadas["url"]
+    assert "127.0.0.1" in capturadas["url"]
 
 
 def test_se_descartan_los_remanentes_de_oracion():
@@ -479,3 +479,47 @@ def test_la_ejecucion_local_no_encadena_modelos_ausentes():
     # El comportamiento remoto se conserva
     assert _conviene_reintentar(
         Exception("404 models/gemini-x is not found for API version v1beta"))
+
+
+def test_el_agotamiento_de_la_espera_no_se_confunde_con_servicio_caido():
+    """
+    Regresion. El texto de la excepcion por espera agotada contiene
+    "HTTPConnectionPool", de modo que satisfacia la condicion de fallo de
+    conexion y el sistema informaba que Ollama no estaba corriendo cuando en
+    realidad estaba respondiendo, solo que con lentitud.
+
+    El diagnostico equivocado es peor que la ausencia de diagnostico: envia a
+    reiniciar un servicio que funciona.
+    """
+    from core.llm import _describir_error
+
+    mensaje = _describir_error(
+        Exception("HTTPConnectionPool(host='127.0.0.1', port=11434): "
+                  "Read timed out. (read timeout=300)"),
+        "ollama", "llama3.2:3b")
+
+    assert "no respondio dentro" in mensaje
+    assert "ejecucion" not in mensaje.lower() or "memoria" in mensaje
+
+
+def test_la_ejecucion_local_admite_una_espera_mayor():
+    """
+    La generacion corre sobre el procesador del equipo, de modo que la espera
+    admisible excede holgadamente la de un proveedor remoto.
+    """
+    from core.config import TIMEOUT_LOCAL, TIMEOUT_RED
+    from core.llm import _timeout_de
+
+    assert _timeout_de("ollama") == TIMEOUT_LOCAL
+    assert _timeout_de("groq") == TIMEOUT_RED
+    assert TIMEOUT_LOCAL >= 10 * TIMEOUT_RED
+
+
+def test_la_direccion_local_no_depende_de_la_resolucion_de_localhost():
+    """
+    En Windows 'localhost' puede resolver primero a IPv6, donde el servicio no
+    escucha. Consignar la direccion IPv4 evita esa clase de fallo.
+    """
+    from core.llm import DIRECCIONES_COMPATIBLES
+
+    assert DIRECCIONES_COMPATIBLES["ollama"].startswith("http://127.0.0.1:")

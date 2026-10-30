@@ -36,6 +36,7 @@ from core.config import (
     PROVEEDOR_LLM,
     TEXTO_SIN_DATO,
     TIMEOUT_RED,
+    TIMEOUT_LOCAL,
 )
 
 
@@ -243,11 +244,16 @@ DIRECCIONES_COMPATIBLES = {
     # Ejecucion local. No requiere clave ni conexion a internet una vez
     # descargado el modelo, y la documentacion no abandona el equipo, lo que
     # resulta determinante en un dominio clinico.
-    "ollama": "http://localhost:11434/v1",
+    "ollama": "http://127.0.0.1:11434/v1",
     "groq": "https://api.groq.com/openai/v1",
     "cerebras": "https://api.cerebras.ai/v1",
     "openrouter": "https://openrouter.ai/api/v1",
 }
+
+
+def _timeout_de(proveedor: str) -> int:
+    """Devuelve la espera maxima admisible segun donde corra el modelo."""
+    return TIMEOUT_LOCAL if proveedor in PROVEEDORES_SIN_CLAVE else TIMEOUT_RED
 
 
 def _llamar_compatible(prompt: str, modelo: str, proveedor: str) -> str:
@@ -265,7 +271,7 @@ def _llamar_compatible(prompt: str, modelo: str, proveedor: str) -> str:
         headers=cabeceras,
         json={"model": modelo, "temperature": 0.1,
               "messages": [{"role": "user", "content": prompt}]},
-        timeout=TIMEOUT_RED,
+        timeout=_timeout_de(proveedor),
     )
     _verificar_respuesta(respuesta)
     datos = respuesta.json()
@@ -424,12 +430,20 @@ def _describir_error(exc: Exception, proveedor: str, modelo: str) -> str:
     # solucion de una sola linea. Conviene reconocerlos antes que los codigos
     # genericos de los servicios remotos.
     if proveedor in PROVEEDORES_SIN_CLAVE:
-        if ("connection" in minusculas or "refused" in minusculas
+        if ("timed out" in minusculas or "timeout" in minusculas):
+            return (f"El modelo local '{modelo}' no respondio dentro de los "
+                    f"{TIMEOUT_LOCAL} segundos previstos. La primera consulta "
+                    f"carga el modelo en memoria y resulta sensiblemente mas "
+                    f"lenta que las siguientes; conviene reintentar. Si la "
+                    f"demora persiste, el equipo no alcanza para este modelo: "
+                    f"ejecute 'ollama pull gemma2:2b' y consigne "
+                    f"MODELO_LLM=gemma2:2b en el archivo .env")
+        if ("refused" in minusculas
                 or "max retries" in minusculas
                 or "failed to establish" in minusculas
                 or "newconnectionerror" in minusculas):
             return ("El servicio local de Ollama no responde en "
-                    "http://localhost:11434. Verifique que Ollama se "
+                    "http://127.0.0.1:11434. Verifique que Ollama se "
                     "encuentre en ejecucion: en Windows aparece como un icono "
                     "en la bandeja del sistema. De no estarlo, abralo desde "
                     "el menu de inicio, o ejecute 'ollama serve' en una "
