@@ -11,8 +11,7 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (aviso_clinico, barra_lateral, configurar_pagina,
-                       encabezado, estado, fijar)
+from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, estado, fijar)
 from core import db, feedback, metricas
 from core.llm import detectar_proveedor
 from core.vectorizacion import motor_disponible, MOTOR_EMBEDDINGS
@@ -38,26 +37,26 @@ col1, col2, col3 = st.columns(3)
 proveedor, modelo = detectar_proveedor()
 with col1:
     if proveedor == "offline":
-        st.metric("Generacion", "Reglas deterministas")
+        dato("Generacion", "Reglas deterministas")
         st.caption(
             "Sin clave de API configurada. El sistema opera en modo "
             "determinista, que es reproducible y auditable pero produce "
             "resumenes menos fluidos."
         )
     else:
-        st.metric("Generacion", "Modelo de lenguaje")
+        dato("Generacion", "Modelo de lenguaje")
         st.caption(f"Proveedor: {proveedor} | Modelo: {modelo}")
 
 with col2:
     motor = motor_disponible()
     if motor == MOTOR_EMBEDDINGS:
-        st.metric("Recuperacion", "Embeddings")
+        dato("Recuperacion", "Embeddings")
         st.caption(
             "Biblioteca de embeddings disponible. La primera ejecucion "
             "requiere descargar el modelo."
         )
     else:
-        st.metric("Recuperacion", "TF-IDF")
+        dato("Recuperacion", "TF-IDF")
         st.caption(
             "Modo de respaldo sin dependencias externas. Instale "
             "sentence-transformers para habilitar recuperacion semantica."

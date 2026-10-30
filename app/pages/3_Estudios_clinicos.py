@@ -16,8 +16,7 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (enlace_pagina, aviso_clinico, barra_lateral, configurar_pagina,
-                       encabezado, estado, fijar, requerir_resumen)
+from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, fijar, requerir_resumen)
 from core.ensayos import ORIGEN_CACHE, buscar_para_perfil
 
 
@@ -52,7 +51,7 @@ st.markdown("**Marcadores utilizados como criterio de busqueda**")
 columnas = st.columns(min(len(marcadores), 4))
 for i, (nombre, valor) in enumerate(marcadores):
     with columnas[i % len(columnas)]:
-        st.metric(nombre, valor)
+        dato(nombre, valor)
 
 st.markdown("---")
 

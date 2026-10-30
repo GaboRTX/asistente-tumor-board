@@ -18,9 +18,7 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (enlace_pagina, aviso_clinico, barra_lateral, configurar_pagina,
-                       encabezado, estado, etiqueta_documento, fijar,
-                       limpiar_caso)
+from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, etiqueta_documento, fijar, limpiar_caso)
 from core import db
 from core.config import DIR_CASOS_DEMO, TIPOS_DOCUMENTO
 from core.ingesta import cargar_caso_demo, procesar_documentos
@@ -133,7 +131,7 @@ def procesar(identificador: str, documentos: dict = None,
             columnas = st.columns(min(len(perfil.informados), 4))
             for i, (nombre, marcador) in enumerate(perfil.informados.items()):
                 with columnas[i % len(columnas)]:
-                    st.metric(nombre, marcador.valor)
+                    dato(nombre, marcador.valor)
         else:
             st.warning(
                 "No se detectaron marcadores moleculares en la documentacion "

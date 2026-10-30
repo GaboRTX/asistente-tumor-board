@@ -679,3 +679,37 @@ def test_se_detecta_la_contradiccion_en_un_campo_narrativo():
 
     assert any("Discrepancia en IDH" in a for a in advertencias), advertencias
     assert any("Hallazgos anatomopatologicos" in a for a in advertencias)
+
+
+def test_la_presentacion_de_valores_no_recorta_el_texto():
+    """
+    En un contexto clinico el recorte es inadmisible: "delecion hom..." no
+    permite distinguir una delecion presente de una ausente, que es
+    precisamente el dato que determina la conducta.
+    """
+    import re
+    from pathlib import Path
+
+    # El valor de un marcador nunca debe presentarse con st.metric, que
+    # recorta con puntos suspensivos al exceder el ancho de la columna.
+    sospechosas = []
+    for ruta in Path("app").rglob("*.py"):
+        texto = ruta.read_text(encoding="utf-8")
+        # La llamada puede abarcar varias lineas; se la reune antes de
+        # evaluarla para no juzgarla por su primer renglon.
+        for m in re.finditer(r"st\.metric\((.*?)\)\s*$",
+                             texto, re.DOTALL | re.MULTILINE):
+            llamada = " ".join(m.group(1).split())
+            n = texto[:m.start()].count("\n") + 1
+            partes = llamada.split(",", 1)
+            if len(partes) < 2:
+                continue
+            valor = partes[1].strip()
+            # Se admite para recuentos, cuyo valor es siempre breve.
+            if re.match(r"(len\(|\d|f?\"\{[^\"]*\}(\s|de|\w)*\")", valor):
+                continue
+            sospechosas.append(f"{ruta}:{n}: st.metric({llamada})")
+
+    assert not sospechosas, (
+        "valores de longitud variable presentados con st.metric:\n"
+        + "\n".join(sospechosas))

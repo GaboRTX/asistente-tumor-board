@@ -176,3 +176,29 @@ def enlace_pagina(ruta: str, etiqueta: str) -> None:
         partes = nombre.split("_", 1)
         legible = (partes[1] if len(partes) > 1 else nombre).replace("_", " ")
         st.caption(f"{etiqueta}: seleccione **{legible}** en el menu lateral.")
+
+
+def dato(etiqueta: str, valor: Any) -> None:
+    """
+    Muestra un par etiqueta-valor con el texto integro.
+
+    Reemplaza a st.metric, que recorta el valor con puntos suspensivos cuando
+    excede el ancho de la columna. En un contexto clinico el recorte es
+    inadmisible: "delecion hom..." no permite distinguir una delecion presente
+    de una ausente, que es precisamente el dato que determina la conducta.
+    """
+    texto = "" if valor is None else str(valor)
+    st.markdown(
+        f"""<div style="margin-bottom:0.85rem">
+  <div style="font-size:0.78rem;opacity:0.65;line-height:1.3">{_escapar(etiqueta)}</div>
+  <div style="font-size:1.45rem;line-height:1.25;overflow-wrap:anywhere">{_escapar(texto)}</div>
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def _escapar(texto: str) -> str:
+    """Neutraliza el marcado HTML presente en el contenido documental."""
+    import html
+
+    return html.escape(str(texto))

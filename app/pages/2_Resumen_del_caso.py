@@ -19,8 +19,7 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (enlace_pagina, aviso_clinico, barra_lateral, configurar_pagina,
-                       encabezado, estado, fijar, requerir_resumen)
+from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, fijar, requerir_resumen)
 from core import db, feedback
 from core.config import TEXTO_SIN_DATO
 
@@ -43,13 +42,13 @@ aviso_clinico()
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric("Caso", e["identificador"])
+    dato("Caso", e["identificador"])
 with col2:
     modo = resumen.get("modo", "")
-    st.metric("Generacion",
-              "Modelo de lenguaje" if modo == "conectado" else "Reglas")
+    dato("Generacion",
+               "Modelo de lenguaje" if modo == "conectado" else "Reglas")
 with col3:
-    st.metric("Tiempo", f"{resumen.get('segundos', 0)} s")
+    dato("Tiempo", f"{resumen.get('segundos', 0)} s")
 with col4:
     completos = sum(1 for c in resumen.get("campos", [])
                     if c.get("contenido") != TEXTO_SIN_DATO)
@@ -210,7 +209,7 @@ else:
     columnas = st.columns(min(len(informados), 4))
     for i, (nombre, datos) in enumerate(informados.items()):
         with columnas[i % len(columnas)]:
-            st.metric(nombre, datos.get("valor", ""))
+            dato(nombre, datos.get("valor", ""))
             if datos.get("detalle"):
                 st.caption(datos["detalle"])
 
