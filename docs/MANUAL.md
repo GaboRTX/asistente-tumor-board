@@ -231,6 +231,38 @@ Genera el documento consolidado en texto o PDF. Incluye siempre, de manera no
 configurable, la constancia de que se trata de un documento de apoyo que
 requiere validación profesional.
 
+### Consultas a profesionales
+
+Circula el caso a los especialistas antes de la deliberación. Para cada
+consulta se registra nombre, especialidad y una dirección de correo, y el
+sistema envía un aviso.
+
+El profesional recibe el **caso completo** con **su sección resaltada**: el
+patólogo ve los hallazgos anatomopatológicos destacados, el imagenólogo los
+imagenológicos. Recibe el caso entero porque una sección aislada no admite
+lectura clínica, y se le señala aquella sobre la cual se requiere su dictamen.
+
+Cada consulta se responde con **Conforme** o **Con observaciones**. La segunda
+exige el detalle de la observación: un caso marcado como objetado sin
+constancia de la objeción dejaría a la junta sin nada sobre lo cual deliberar.
+
+El sistema conserva una **instantánea de lo exhibido** al momento de la
+consulta. Si el resumen se regenera después, la respuesta sigue refiriéndose a
+lo que el profesional efectivamente vio.
+
+Dos restricciones que conviene poder explicar en la defensa:
+
+1. **El aviso por correo no lleva documentación clínica.** Identifica el caso
+   por su código interno y remite al sistema. El correo atraviesa servidores
+   de terceros y queda depositado en las casillas de emisor y destinatario; el
+   contenido permanece donde reside.
+2. **Una consulta, un destinatario.** No se admiten copias ni direcciones
+   múltiples, y se rechazan las que contengan caracteres de control, que
+   permitirían incorporar destinatarios ocultos al mensaje.
+
+Sin servidor de correo configurado la pantalla funciona igual: la consulta se
+registra y se informa que el aviso quedó pendiente de envío.
+
 ### Curación de correcciones
 
 Tres pestañas: pendientes, activas y desactivadas. Cada corrección puede

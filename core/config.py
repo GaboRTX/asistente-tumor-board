@@ -70,6 +70,20 @@ PROVEEDOR_LLM = os.getenv("PROVEEDOR_LLM", "auto")   # auto | google | anthropic
 CLAVE_API_LLM = os.getenv("CLAVE_API_LLM", "")
 MODELO_LLM = os.getenv("MODELO_LLM", "")
 
+# ---------------------------------------------------------------------------
+# Aviso de consulta por correo
+# ---------------------------------------------------------------------------
+# El aviso no transporta contenido clinico; anuncia la consulta y remite al
+# sistema. La configuracion es opcional: sin ella el circuito de consulta
+# funciona igualmente y el aviso se entrega para su envio manual.
+SMTP_SERVIDOR = os.getenv("SMTP_SERVIDOR", "")
+SMTP_PUERTO = int(os.getenv("SMTP_PUERTO", "587") or "587")
+SMTP_USUARIO = os.getenv("SMTP_USUARIO", "")
+SMTP_CLAVE = os.getenv("SMTP_CLAVE", "")
+SMTP_REMITENTE = os.getenv("SMTP_REMITENTE", "") or SMTP_USUARIO
+SMTP_INSTITUCION = os.getenv("SMTP_INSTITUCION", "")
+TIMEOUT_SMTP = 20
+
 # Tiempo maximo de espera para llamadas de red (segundos)
 TIMEOUT_RED = 20
 

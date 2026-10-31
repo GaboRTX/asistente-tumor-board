@@ -16,7 +16,7 @@ import streamlit as st
 
 from app.comun import (barra_lateral, configurar_pagina, encabezado,
                        requerir_resumen)
-from core import reporte
+from core import consultas, reporte
 from core.config import TEXTO_SIN_DATO
 
 
@@ -62,6 +62,46 @@ with c2:
     st.metric("Estudios incluidos", len(ensayos))
 with c3:
     st.metric("Observaciones", len(resumen.get("advertencias") or []))
+
+# --- Estado de la revision por especialidad --------------------------------
+# El reporte es el insumo de la deliberacion, de modo que debe exhibir si el
+# caso fue efectivamente revisado. Un reporte que omita ese dato induce a
+# suponer una conformidad que puede no existir.
+_circuito = consultas.estado_del_circuito(e["caso_id"])
+
+if _circuito["total"] == 0:
+    st.warning(
+        "El caso no fue sometido a revision por especialidad. La ausencia de "
+        "objeciones no equivale a conformidad."
+    )
+elif _circuito["pendientes"]:
+    st.warning(
+        f"Restan {_circuito['pendientes']} respuesta(s) pendiente(s) de "
+        f"profesionales consultados."
+    )
+elif _circuito["con_observaciones"]:
+    st.warning(
+        f"{_circuito['con_observaciones']} profesional(es) consignaron "
+        f"observaciones sin atender."
+    )
+else:
+    st.success(
+        f"Revisado por {_circuito['conformes']} profesional(es), sin "
+        f"observaciones pendientes."
+    )
+
+with st.expander("Detalle de la revision por especialidad",
+                 expanded=bool(_circuito["con_observaciones"])):
+    if not _circuito["consultas"]:
+        st.caption("Sin consultas registradas.")
+    for _c in _circuito["consultas"]:
+        st.markdown(
+            f"- **{_c['nombre']}** "
+            f"({consultas.etiqueta_de_especialidad(_c['especialidad'])}): "
+            f"{consultas.ETIQUETAS_ESTADO.get(_c['estado'], _c['estado'])}"
+        )
+        if _c["observacion"]:
+            st.caption(f"  {_c['observacion']}")
 
 st.markdown("---")
 

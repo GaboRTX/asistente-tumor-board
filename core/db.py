@@ -1,11 +1,12 @@
 """
 Capa de persistencia del sistema (SQLite).
 
-Se definen cuatro entidades:
+Se definen cinco entidades:
   - casos:                 cada caso clinico cargado en el sistema
   - generaciones:          cada ejecucion del pipeline sobre un caso
   - feedback:              cada correccion realizada por un profesional
   - correcciones:          correcciones curadas que alimentan el retrieval
+  - consultas:             circulacion del caso a un profesional y su respuesta
 
 La separacion entre "feedback" (lo que el profesional corrigio) y
 "correcciones" (lo que efectivamente se incorpora al sistema) es deliberada:
@@ -70,6 +71,26 @@ CREATE TABLE IF NOT EXISTS correcciones (
     fecha_creacion      TEXT NOT NULL,
     fecha_validacion    TEXT DEFAULT '',
     FOREIGN KEY (feedback_id) REFERENCES feedback (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS consultas (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    caso_id             INTEGER NOT NULL,
+    generacion_id       INTEGER,
+    token               TEXT NOT NULL UNIQUE,   -- identificador de la consulta
+    nombre              TEXT NOT NULL,
+    especialidad        TEXT NOT NULL,
+    correo              TEXT NOT NULL,
+    campo_interes       TEXT NOT NULL,          -- clave del campo a revisar
+    estado              TEXT NOT NULL DEFAULT 'pendiente',
+                                                -- pendiente | conforme | con_observaciones
+    instantanea         TEXT NOT NULL,          -- JSON: lo exhibido al profesional
+    aviso_enviado       INTEGER NOT NULL DEFAULT 0,
+    detalle_envio       TEXT DEFAULT '',
+    fecha_creacion      TEXT NOT NULL,
+    fecha_respuesta     TEXT,
+    observacion         TEXT DEFAULT '',
+    FOREIGN KEY (caso_id) REFERENCES casos (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS tiempos_manuales (
@@ -289,6 +310,95 @@ def listar_correcciones(estado: Optional[str] = None,
 
 # ---------------------------------------------------------------------------
 # Tiempos manuales de referencia (para la metrica de la hipotesis)
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Consultas a profesionales
+# ---------------------------------------------------------------------------
+
+def crear_consulta(caso_id: int, token: str, nombre: str, especialidad: str,
+                   correo: str, campo_interes: str, instantanea: Any,
+                   generacion_id: Optional[int] = None,
+                   ruta: Optional[Path] = None) -> int:
+    """
+    Registra la circulacion de un caso a un profesional.
+
+    La instantanea conserva lo efectivamente exhibido. Sin ella la trazabilidad
+    se pierde: una respuesta solo significa algo respecto del contenido sobre
+    el cual se emitio, y el resumen puede regenerarse despues.
+    """
+    with conexion(ruta) as con:
+        cur = con.execute(
+            "INSERT INTO consultas (caso_id, generacion_id, token, nombre, "
+            "especialidad, correo, campo_interes, estado, instantanea, "
+            "fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (caso_id, generacion_id, token, nombre, especialidad, correo,
+             campo_interes, "pendiente",
+             json.dumps(instantanea, ensure_ascii=False), _ahora()),
+        )
+        return cur.lastrowid
+
+
+def obtener_consulta(consulta_id: int,
+                     ruta: Optional[Path] = None) -> Optional[Dict[str, Any]]:
+    with conexion(ruta) as con:
+        fila = con.execute("SELECT * FROM consultas WHERE id = ?",
+                           (consulta_id,)).fetchone()
+    return _desempaquetar_consulta(fila)
+
+
+def buscar_consulta_por_token(token: str,
+                              ruta: Optional[Path] = None) -> Optional[Dict[str, Any]]:
+    with conexion(ruta) as con:
+        fila = con.execute("SELECT * FROM consultas WHERE token = ?",
+                           (token,)).fetchone()
+    return _desempaquetar_consulta(fila)
+
+
+def listar_consultas(caso_id: Optional[int] = None,
+                     ruta: Optional[Path] = None) -> List[Dict[str, Any]]:
+    with conexion(ruta) as con:
+        if caso_id is None:
+            filas = con.execute(
+                "SELECT * FROM consultas ORDER BY id DESC").fetchall()
+        else:
+            filas = con.execute(
+                "SELECT * FROM consultas WHERE caso_id = ? ORDER BY id DESC",
+                (caso_id,)).fetchall()
+    return [_desempaquetar_consulta(f) for f in filas]
+
+
+def registrar_envio_consulta(consulta_id: int, enviado: bool, detalle: str = "",
+                             ruta: Optional[Path] = None) -> None:
+    with conexion(ruta) as con:
+        con.execute(
+            "UPDATE consultas SET aviso_enviado = ?, detalle_envio = ? WHERE id = ?",
+            (1 if enviado else 0, detalle, consulta_id))
+
+
+def registrar_respuesta_consulta(consulta_id: int, estado: str,
+                                 observacion: str = "",
+                                 ruta: Optional[Path] = None) -> None:
+    """Asienta la respuesta del profesional. Los estados validos se validan
+    en core.consultas, que es donde reside la regla."""
+    with conexion(ruta) as con:
+        con.execute(
+            "UPDATE consultas SET estado = ?, observacion = ?, "
+            "fecha_respuesta = ? WHERE id = ?",
+            (estado, observacion, _ahora(), consulta_id))
+
+
+def _desempaquetar_consulta(fila) -> Optional[Dict[str, Any]]:
+    if not fila:
+        return None
+    consulta = dict(fila)
+    consulta["instantanea"] = json.loads(consulta["instantanea"])
+    consulta["aviso_enviado"] = bool(consulta["aviso_enviado"])
+    return consulta
+
+
+# ---------------------------------------------------------------------------
+# Tiempos manuales
 # ---------------------------------------------------------------------------
 
 def registrar_tiempo_manual(descripcion: str, minutos: float, fuente: str,

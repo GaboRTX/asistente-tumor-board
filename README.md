@@ -96,6 +96,26 @@ parámetros resulta suficiente para la tarea de redacción solicitada, dado que
 la extracción de los datos estructurados corre por cuenta de las reglas
 deterministas y no del modelo.
 
+### Consulta a profesionales
+
+Antes de la deliberación de la junta, el caso puede circularse a los
+especialistas que corresponden a cada sección del resumen. El circuito deja
+constancia de a quién se consultó, qué se le exhibió y qué respondió.
+
+Dos restricciones gobiernan el envío:
+
+- **El aviso no transporta documentación clínica.** Anuncia la consulta e
+  identifica el caso por su código interno; el contenido se consulta en el
+  sistema. Un mensaje de correo queda depositado de manera persistente en
+  casillas ajenas al control institucional, de modo que incorporar allí el
+  estudio anularía la premisa sobre la que se sostiene el sistema.
+- **Cada consulta admite un único destinatario.** No se aceptan copias ni
+  direcciones múltiples, y se rechazan las direcciones que contengan
+  caracteres de control, que permitirían incorporar destinatarios ocultos.
+
+La configuración SMTP es opcional (ver `.env.example`). Sin ella las consultas
+se registran igualmente y el aviso queda disponible para su envío manual.
+
 Los proveedores declaran financiar sus niveles gratuitos mediante el
 aprovechamiento de las consultas recibidas. La circunstancia resulta
 relevante en un dominio clínico: no corresponde dirigir documentación de

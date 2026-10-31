@@ -148,4 +148,5 @@ for ensayo in ensayos:
             st.caption("Paises: " + ", ".join(paises[:8]))
 
 st.markdown("---")
-enlace_pagina("pages/4_Reporte_final.py", "Continuar al reporte final")
+enlace_pagina("pages/6_Consultas_a_profesionales.py",
+              "Continuar a consultas a profesionales")
