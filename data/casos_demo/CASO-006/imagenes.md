@@ -1,11 +1,16 @@
-INFORME DE RESONANCIA MAGNETICA - CASO-006
+# INFORME DE RESONANCIA MAGNETICA - CASO-006
+
 Documento sintetico de demostracion.
 
-ESTUDIO
+
+## Estudio
+
 Resonancia magnetica de encefalo sin y con gadolinio, con cortes finos de
 fosa posterior.
 
-HALLAZGOS
+
+## Hallazgos
+
 Lesion expansiva intraaxial centrada en la protuberancia, que compromete
 mas del 50% del area transversal del puente, con extension al pedunculo
 cerebeloso medio izquierdo.
@@ -23,7 +28,9 @@ sistema ventricular supratentorial.
 
 En difusion no se observa restriccion significativa.
 
-CONCLUSION
+
+## Conclusion
+
 Lesion expansiva protuberancial infiltrante con realce tenue, compatible
 con glioma difuso de la linea media. La localizacion y el patron de
 crecimiento desaconsejan la reseccion quirurgica.

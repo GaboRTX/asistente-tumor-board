@@ -254,3 +254,72 @@ def test_el_informe_de_lectura_expone_el_documento_sin_texto(tmp_path,
 
     texto_doc = next(i for i in informes if i["tipo_documento"] == "patologia")
     assert texto_doc["fragmentos"] >= 1
+
+
+# ---------------------------------------------------------------------------
+# Composicion de filas tabulares
+# ---------------------------------------------------------------------------
+
+def test_la_fila_tabular_no_separa_la_determinacion_de_su_resultado():
+    """
+    Regresion grave. El analizador acota cada marcador a su clausula para no
+    atribuirle el estado del vecino, y considera separadores de clausula a la
+    coma, el punto y coma y la barra vertical.
+
+    Unir la determinacion con su resultado mediante cualquiera de ellos los
+    situaba en clausulas distintas. "EGFR | sin amplificacion" dejaba a EGFR
+    sin estado y el marcador desaparecia del perfil.
+    """
+    from core.lectores import componer_fila
+    from core.perfil_molecular import extraer_perfil
+
+    linea = componer_fila(["EGFR", "sin amplificacion."])
+
+    perfil = extraer_perfil([{"texto": linea, "tipo_documento": "genomica"}])
+    assert "EGFR" in perfil.informados, f"linea compuesta: {linea!r}"
+    assert perfil.informados["EGFR"].valor == "no amplificado"
+
+
+def test_la_fila_de_tres_columnas_conserva_el_resultado():
+    """Una fila con la tecnica intercalada no debe perder el resultado."""
+    from core.lectores import componer_fila
+    from core.perfil_molecular import extraer_perfil
+
+    linea = componer_fila(["1p/19q", "FISH", "no se evidencia codelecion."])
+
+    perfil = extraer_perfil([{"texto": linea, "tipo_documento": "genomica"}])
+    assert perfil.informados["1p/19q"].valor == "codelecion ausente"
+
+
+def test_la_coma_del_csv_no_se_confunde_con_puntuacion(tmp_path):
+    """
+    Regresion grave. La coma de un CSV es un separador estructural, no
+    puntuacion de oracion. Entregarla como coma partia la linea
+    "Codelecion 1p/19q,no se evidencia" y la negacion se perdia, de modo que
+    un marcador ausente se consignaba como PRESENTE.
+
+    Una inversion de polaridad es el peor desenlace posible: no se manifiesta
+    como un error sino como un dato falso con apariencia de dato cierto.
+    """
+    from core.perfil_molecular import extraer_perfil
+
+    ruta = tmp_path / "genomica.csv"
+    ruta.write_text("campo,valor\n"
+                    "Codelecion 1p/19q,no se evidencia.\n"
+                    "Promotor de TERT,no se detecta mutacion.\n",
+                    encoding="utf-8")
+
+    texto = lectores.leer(ruta).texto
+    perfil = extraer_perfil([{"texto": texto, "tipo_documento": "genomica"}])
+
+    assert perfil.informados["1p/19q"].valor == "codelecion ausente", (
+        "la negacion debe conservarse al cruzar el limite de columna")
+    assert perfil.informados["TERT"].valor == "no mutado"
+
+
+def test_la_celda_unica_se_conserva_tal_cual():
+    from core.lectores import componer_fila
+
+    assert componer_fila(["CONCLUSION"]) == "CONCLUSION"
+    assert componer_fila([]) == ""
+    assert componer_fila(["", "  "]) == ""

@@ -1,0 +1,21 @@
+campo,valor
+INFORME DE SECUENCIACION GENOMICA - CASO-007,
+Documento sintetico de demostracion.,
+Informe correspondiente a la muestra de la cirugia inicial.,
+METODOLOGIA,
+"Secuenciacion de nueva generacion, panel de tumores del sistema nervioso",
+central. Metilacion del promotor de MGMT por pirosecuenciacion.,
+RESULTADOS,
+IDH1,mutacion p.R132H detectada. Fraccion alelica 40%.
+IDH2,sin variantes.
+Codelecion 1p/19q,ausente.
+Promotor de MGMT,metilado. Nivel de metilacion 48%.
+ATRX,mutacion con perdida de funcion.
+TP53,mutacion p.R175H detectada.
+Promotor de TERT,sin mutacion.
+EGFR,sin amplificacion.
+CDKN2A/B,sin delecion homocigota.
+INTERPRETACION,
+Perfil molecular de astrocitoma IDH mutante. El estado metilado del,
+promotor de MGMT es consistente con la respuesta favorable observada al,
+tratamiento con temozolomida.,

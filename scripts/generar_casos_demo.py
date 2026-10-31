@@ -1116,12 +1116,49 @@ la conducta terapeutica.
 """
 }
 
-if __name__ == "__main__":
-    BASE.mkdir(parents=True, exist_ok=True)
+def _en_texto_plano() -> None:
+    """Escribe cada documento como texto plano."""
     for caso, docs in sorted(CASOS.items()):
-        d = BASE / caso
-        d.mkdir(parents=True, exist_ok=True)
+        directorio = BASE / caso
+        directorio.mkdir(parents=True, exist_ok=True)
         for tipo, contenido in docs.items():
-            (d / f"{tipo}.txt").write_text(contenido, encoding="utf-8")
-        print(f"{caso}: {len(docs)} documentos")
-    print(f"\nTotal: {len(CASOS)} casos generados en {BASE}")
+            (directorio / f"{tipo}.txt").write_text(contenido, encoding="utf-8")
+        print(f"  {caso}: {len(docs)} documentos")
+
+
+def _en_formatos_variados() -> None:
+    """
+    Escribe cada documento en el formato que le asigna la distribucion.
+
+    Los documentos de un caso real no llegan en un unico formato. Distribuir
+    los casos de demostracion de la misma manera permite ejercitar la ingesta
+    tal como se la usara, y exhibir que el sistema admite lo que el servicio
+    efectivamente produce.
+    """
+    from formatos_demo import generar
+
+    resultado = generar(CASOS, BASE)
+    for caso, archivos in sorted(resultado.items()):
+        print(f"  {caso}: {', '.join(archivos)}")
+
+
+if __name__ == "__main__":
+    import argparse
+
+    analizador = argparse.ArgumentParser(
+        description="Genera los casos de demostracion.")
+    analizador.add_argument(
+        "--texto-plano", action="store_true",
+        help="Escribe todo en .txt en lugar de distribuirlo en formatos.")
+    argumentos = analizador.parse_args()
+
+    BASE.mkdir(parents=True, exist_ok=True)
+
+    if argumentos.texto_plano:
+        print("Generando en texto plano...")
+        _en_texto_plano()
+    else:
+        print("Generando en formatos variados...")
+        _en_formatos_variados()
+
+    print(f"\nTotal: {len(CASOS)} casos en {BASE}")

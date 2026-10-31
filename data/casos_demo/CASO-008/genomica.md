@@ -1,11 +1,16 @@
-INFORME DE SECUENCIACION GENOMICA - CASO-008
+# INFORME DE SECUENCIACION GENOMICA - CASO-008
+
 Documento sintetico de demostracion.
 
-METODOLOGIA
+
+## Metodologia
+
 Secuenciacion de nueva generacion, panel de tumores del sistema nervioso
 central. Metilacion del promotor de MGMT por pirosecuenciacion.
 
-RESULTADOS
+
+## Resultados
+
 IDH1 e IDH2: no se detectan mutaciones. Perfil IDH wild-type.
 Promotor de TERT: mutacion C250T detectada.
 Promotor de MGMT: metilado. Nivel de metilacion 31%.
@@ -17,7 +22,9 @@ ATRX: sin mutacion.
 Perfil de numero de copias: ganancia del cromosoma 7 y perdida del
 cromosoma 10.
 
-INTERPRETACION
+
+## Interpretacion
+
 Perfil molecular de glioblastoma IDH wild-type.
 El estado metilado del promotor de MGMT resulta relevante en el contexto
 clinico actual: se asocia tanto a mayor beneficio de los agentes

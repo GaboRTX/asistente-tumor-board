@@ -322,17 +322,27 @@ def procesar_documentos_detallado(
     return fragmentos, informes
 
 
+# Orden de preferencia ante varios archivos del mismo tipo de documento.
+# Antepone los formatos que conservan la estructura del informe.
+PRIORIDAD_FORMATO = (".docx", ".odt", ".pdf", ".xlsx", ".html", ".rtf",
+                     ".md", ".csv", ".txt")
+
+
 def cargar_caso_demo(directorio: Union[str, Path]) -> Dict[str, Path]:
     """
     Detecta los documentos de un caso demo a partir del nombre de archivo.
 
-    Convencion esperada dentro del directorio del caso:
-        historia_clinica.txt, anatomia_patologica.txt, genomica.txt, imagenes.txt
+    Convencion esperada dentro del directorio del caso: un archivo por tipo
+    de documento, con el nombre del tipo y cualquier extension admitida
+    (historia_clinica.docx, anatomia_patologica.pdf, genomica.xlsx...).
+
+    Ante varios archivos del mismo tipo prevalece el primero en el orden de
+    PRIORIDAD_FORMATO, que antepone los formatos de mayor fidelidad.
     """
     directorio = Path(directorio)
     encontrados: Dict[str, Path] = {}
     for tipo in TIPOS_DOCUMENTO:
-        for extension in (".txt", ".pdf", ".md"):
+        for extension in PRIORIDAD_FORMATO:
             candidato = directorio / f"{tipo}{extension}"
             if candidato.exists():
                 encontrados[tipo] = candidato

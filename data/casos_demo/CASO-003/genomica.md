@@ -1,14 +1,21 @@
-INFORME DE SECUENCIACION GENOMICA - CASO-003
+# INFORME DE SECUENCIACION GENOMICA - CASO-003
+
 Documento sintetico de demostracion.
 
-MUESTRA
+
+## Muestra
+
 Tejido tumoral incluido en parafina. Celularidad tumoral estimada: 65%.
 
-METODOLOGIA
+
+## Metodologia
+
 Secuenciacion de nueva generacion e hibridacion in situ fluorescente para
 evaluacion de 1p/19q. Metilacion del promotor de MGMT por pirosecuenciacion.
 
-RESULTADOS
+
+## Resultados
+
 IDH1: mutacion p.R132H (c.395G>A) detectada. Fraccion alelica 35%.
 Codelecion 1p/19q: presente. Perdida combinada completa de los brazos
 cromosomicos 1p y 19q confirmada por FISH, con ratio 1p/1q de 0,42 y
@@ -21,7 +28,9 @@ CIC: mutacion p.R1515H detectada.
 FUBP1: sin mutacion.
 CDKN2A/B: sin delecion homocigota.
 
-INTERPRETACION
+
+## Interpretacion
+
 Perfil molecular diagnostico de oligodendroglioma IDH mutante y 1p/19q
 codelecionado. La trimodalidad de mutacion de IDH, codelecion 1p/19q y
 mutacion del promotor de TERT es caracteristica de esta entidad.

@@ -53,6 +53,28 @@ class Lectura:
         }
 
 
+def componer_fila(celdas: List[str]) -> str:
+    """
+    Convierte una fila tabular en una linea legible como prosa.
+
+    La primera celda de una fila clinica es la determinacion y las restantes
+    su resultado, de modo que la lectura natural es "determinacion: resultado".
+
+    La eleccion del separador no es cosmetica. El analizador acota cada
+    marcador a su clausula para no atribuirle el estado del marcador vecino,
+    y considera separadores de clausula a la coma, el punto y coma y la barra
+    vertical. Unir la determinacion con su resultado mediante cualquiera de
+    ellos los situaria en clausulas distintas: "EGFR | sin amplificacion"
+    dejaba a EGFR sin estado y el marcador se perdia por completo.
+    """
+    celdas = [c.strip() for c in celdas if c and c.strip()]
+    if not celdas:
+        return ""
+    if len(celdas) == 1:
+        return celdas[0]
+    return f"{celdas[0]}: " + " - ".join(celdas[1:])
+
+
 class FormatoNoSoportado(ValueError):
     """La extension del archivo no corresponde a ningun lector registrado."""
 
@@ -123,6 +145,36 @@ def _leer_texto_plano(ruta: Path) -> Lectura:
                       "algunos caracteres pueden haberse sustituido."])
 
 
+def _leer_delimitado(ruta: Path) -> Lectura:
+    """
+    Lee un archivo delimitado reemplazando el separador por una barra.
+
+    La coma de un CSV es un separador estructural, no puntuacion de oracion.
+    Entregarla como coma al analisis induce a interpretarla como limite de
+    clausula: la linea "Codelecion 1p/19q,no se evidencia" quedaba partida y
+    la negacion se perdia, de modo que un marcador ausente se consignaba como
+    presente. Una inversion de ese tipo es el peor desenlace posible para el
+    sistema, porque no se manifiesta como un error sino como un dato falso.
+    """
+    import csv
+    import io
+
+    bruto = _leer_texto_plano(ruta)
+    if not bruto.tiene_texto:
+        return bruto
+
+    delimitador = "\t" if ruta.suffix.lower() == ".tsv" else ","
+    try:
+        filas = list(csv.reader(io.StringIO(bruto.texto),
+                                delimiter=delimitador))
+    except csv.Error:
+        return bruto
+
+    lineas = [componer_fila(fila) for fila in filas]
+    return Lectura(texto="\n".join(l for l in lineas if l),
+                   metodo="archivo delimitado")
+
+
 def _leer_html(ruta: Path) -> Lectura:
     bruto = _leer_texto_plano(ruta).texto
     try:
@@ -173,9 +225,9 @@ def _leer_docx(ruta: Path) -> Lectura:
     # mayor densidad del documento.
     for tabla in documento.tables:
         for fila in tabla.rows:
-            celdas = [c.text.strip() for c in fila.cells]
-            if any(celdas):
-                partes.append(" | ".join(celdas))
+            linea = componer_fila([c.text for c in fila.cells])
+            if linea:
+                partes.append(linea)
 
     imagenes = _nombres_de_imagenes_embebidas(ruta)
     advertencias = []
@@ -233,9 +285,9 @@ def _leer_planilla(ruta: Path) -> Lectura:
     for hoja in libro.worksheets:
         partes.append(f"[{hoja.title}]")
         for fila in hoja.iter_rows(values_only=True):
-            celdas = [str(c).strip() for c in fila if c is not None]
-            if celdas:
-                partes.append(" | ".join(celdas))
+            linea = componer_fila([str(c) for c in fila if c is not None])
+            if linea:
+                partes.append(linea)
     libro.close()
     return Lectura(texto=_compactar("\n".join(partes)), metodo="planilla")
 
@@ -339,8 +391,8 @@ LECTORES: Dict[str, Callable[[Path], Lectura]] = {
     ".text": _leer_texto_plano,
     ".md": _leer_texto_plano,
     ".markdown": _leer_texto_plano,
-    ".csv": _leer_texto_plano,
-    ".tsv": _leer_texto_plano,
+    ".csv": _leer_delimitado,
+    ".tsv": _leer_delimitado,
     ".json": _leer_texto_plano,
     ".log": _leer_texto_plano,
     ".dat": _leer_texto_plano,
