@@ -21,7 +21,7 @@ import streamlit as st
 from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, etiqueta_documento, fijar, limpiar_caso, requerir_sesion)
 from core import db
 from core.config import TIPOS_DOCUMENTO
-from core.ingesta import procesar_documentos
+from core.ingesta import procesar_documentos_detallado
 from core.lectores import extensiones_admitidas, ocr_disponible
 
 EXTENSIONES_ADMITIDAS = extensiones_admitidas()
@@ -59,7 +59,7 @@ def procesar(identificador: str, documentos: dict = None,
     try:
         # Etapa 1: ingesta y normalizacion
         barra.progress(12, text="Normalizando los documentos del caso...")
-        fragmentos = procesar_documentos(identificador, documentos or {},
+        fragmentos, informes = procesar_documentos_detallado(identificador, documentos or {},
                                          textos_directos=textos or {})
         if not fragmentos:
             barra.empty()
@@ -115,6 +115,8 @@ def procesar(identificador: str, documentos: dict = None,
 
         fijar(
             caso_id=caso_id, identificador=identificador,
+            documentos_origen={t: str(r) for t, r in (documentos or {}).items()},
+            informes_lectura=informes,
             fragmentos=fragmentos, resumen=resultado.como_dict(),
             generacion_id=generacion_id, ensayos=None, origen_ensayos="",
             resumen_ensayos=None,

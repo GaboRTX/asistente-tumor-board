@@ -96,6 +96,17 @@ parámetros resulta suficiente para la tarea de redacción solicitada, dado que
 la extracción de los datos estructurados corre por cuenta de las reglas
 deterministas y no del modelo.
 
+### Expediente documental
+
+Desde el reporte final puede generarse un paquete ZIP con el expediente
+completo del caso: el resumen con el respaldo documental de cada dato, el
+perfil molecular, el detalle de la documentación analizada, la revisión por
+especialidad, el marco normativo y la documentación de origen.
+
+El expediente **no constituye indicación, prescripción ni aval de
+tratamiento**. El sistema compila documentación; la indicación terapéutica la
+formula y la suscribe el médico tratante.
+
 ### Consulta a profesionales
 
 Antes de la deliberación de la junta, el caso puede circularse a los

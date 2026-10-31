@@ -33,6 +33,8 @@ def inicializar_app() -> None:
         st.session_state[CLAVE_ESTADO] = {
             "caso_id": None,
             "identificador": None,
+            "documentos_origen": {},
+            "informes_lectura": [],
             "fragmentos": None,
             "resumen": None,
             "generacion_id": None,
@@ -130,7 +132,8 @@ def limpiar_caso() -> None:
     """Descarta el caso en curso, conservando las preferencias de sesion."""
     autor = estado().get("autor", "")
     st.session_state[CLAVE_ESTADO] = {
-        "caso_id": None, "identificador": None, "fragmentos": None,
+        "caso_id": None, "identificador": None, "documentos_origen": {},
+        "informes_lectura": [], "fragmentos": None,
         "resumen": None, "generacion_id": None, "ensayos": None,
         "origen_ensayos": "", "resumen_ensayos": None,
         "motor_recuperacion": "", "degradacion": "", "autor": autor,

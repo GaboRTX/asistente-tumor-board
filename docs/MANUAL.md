@@ -263,6 +263,34 @@ Dos restricciones que conviene poder explicar en la defensa:
 Sin servidor de correo configurado la pantalla funciona igual: la consulta se
 registra y se informa que el aviso quedó pendiente de envío.
 
+### Informe de estudios completo (expediente)
+
+Al pie del **Reporte final**. Arma un paquete ZIP con:
+
+- `expediente.pdf`: el expediente completo, con carátula, índice y
+  numeración. Cada campo del resumen aparece junto al documento que lo
+  respalda, y los campos sin respaldo se señalan como tales.
+- `expediente.txt`: el mismo contenido en texto plano.
+- `documentacion_origen/`: los documentos tal como fueron aportados, para que
+  quien revise pueda contrastar el expediente contra la fuente.
+- `CONTENIDO.txt`: manifiesto del paquete.
+
+El expediente incluye el marco normativo (WHO CNS5, CAP/AANP/AMP/SNO, EANO,
+ICCR, RANO), el detalle de qué documento se leyó y con qué método, el
+registro de la revisión por especialidad con sus observaciones, y las
+advertencias del sistema.
+
+**Qué no hace, y por qué conviene poder explicarlo.** El expediente **no
+indica ni avala tratamiento alguno**. El sistema tiene prohibido sugerir
+conductas terapéuticas, y esa prohibición no cede por el destinatario del
+documento. Lo que aporta es el legajo: lo que consta, con su respaldo, y
+quién lo revisó. La indicación la formula y la suscribe el médico tratante.
+
+La distinción no es formal. Un documento emitido por un programa que afirmara
+que corresponde cubrir determinada terapia sería un acto médico sin médico, y
+su eventual error no tendría responsable. Una prueba automatizada recorre el
+expediente y rechaza toda fórmula de indicación o aval.
+
 ### Curación de correcciones
 
 Tres pestañas: pendientes, activas y desactivadas. Cada corrección puede

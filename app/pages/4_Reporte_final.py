@@ -14,8 +14,8 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (barra_lateral, configurar_pagina, encabezado, requerir_resumen, requerir_sesion)
-from core import consultas, reporte
+from app.comun import (barra_lateral, configurar_pagina, encabezado, requerir_resumen, requerir_sesion, usuario_actual)
+from core import consultas, expediente, reporte
 from core.config import TEXTO_SIN_DATO
 
 
@@ -143,3 +143,79 @@ if st.button("Generar reporte en PDF", type="primary",
 st.markdown("---")
 st.markdown("### Vista previa")
 st.text(texto)
+
+
+st.markdown("---")
+
+# ---------------------------------------------------------------------------
+# Expediente documental completo
+# ---------------------------------------------------------------------------
+
+st.markdown("### Informe de estudios completo")
+st.caption(
+    "Reune el expediente del caso en un unico paquete: el resumen con el "
+    "respaldo documental de cada dato, el perfil molecular, el detalle de la "
+    "documentacion analizada, la revision por especialidad, el marco "
+    "normativo y la documentacion de origen tal como fue aportada."
+)
+
+st.info(
+    "**Alcance.** El expediente compila lo que consta y su respaldo. **No "
+    "constituye indicacion, prescripcion ni aval de tratamiento**: la "
+    "indicacion terapeutica la formula y la suscribe el medico tratante. "
+    "Un documento emitido por un programa que afirmara que corresponde "
+    "cubrir determinada terapia seria un acto medico sin medico."
+)
+
+_usuario = usuario_actual()
+
+col_a, col_b = st.columns(2)
+_institucion = col_a.text_input(
+    "Institucion (opcional)", key="expediente_institucion",
+    help="Se consigna en la caratula del expediente.")
+_incluir_origen = col_b.checkbox(
+    "Incluir la documentacion de origen", value=True,
+    key="expediente_incluir_origen",
+    help="Adjunta los documentos tal como fueron aportados, para que quien "
+         "revise pueda contrastar el expediente contra la fuente.")
+
+_documentos_origen = e.get("documentos_origen") or {}
+if _incluir_origen and not _documentos_origen:
+    st.caption(
+        "No se conservan las rutas de los documentos de este caso; el "
+        "paquete se generara sin la documentacion de origen. Vuelva a "
+        "procesar el caso para incorporarla."
+    )
+
+if st.button("Generar informe de estudios completo", type="primary",
+             use_container_width=True):
+    with st.spinner("Componiendo el expediente..."):
+        _datos = expediente.reunir(
+            identificador=e["identificador"],
+            resumen=resumen,
+            ensayos=ensayos,
+            consultas=_circuito["consultas"],
+            informes_lectura=e.get("informes_lectura") or [],
+            emitido_por=(_usuario.etiqueta if _usuario else ""),
+            institucion=_institucion.strip(),
+        )
+        _paquete = expediente.componer_paquete(
+            _datos,
+            documentos_origen=(_documentos_origen if _incluir_origen else None),
+        )
+
+    st.success(
+        f"Expediente compuesto: {len(_paquete) / 1024:.0f} KB. "
+        f"Incluye el expediente en PDF y en texto"
+        + (", y la documentacion de origen." if (_incluir_origen
+                                                 and _documentos_origen)
+           else ".")
+    )
+
+    st.download_button(
+        "Descargar el paquete (ZIP)",
+        data=_paquete,
+        file_name=expediente.nombre_del_paquete(e["identificador"]),
+        mime="application/zip",
+        use_container_width=True,
+    )
