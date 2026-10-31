@@ -2,7 +2,8 @@
 Capa de ingesta de documentos.
 
 Responsabilidades:
-  1. Leer documentos en PDF o texto plano.
+  1. Leer documentos en los formatos habituales de la practica clinica
+     (ver core.lectores).
   2. Normalizarlos a texto procesable.
   3. Fragmentarlos en unidades de tamanio acotado, preservando la referencia
      al documento y a la posicion de origen de cada fragmento.
@@ -18,6 +19,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
+from core import lectores
 from core.config import (
     TAMANIO_FRAGMENTO,
     SOLAPAMIENTO_FRAGMENTO,
@@ -82,13 +84,14 @@ def leer_texto(ruta: Union[str, Path]) -> str:
 
 
 def leer_documento(ruta: Union[str, Path]) -> str:
-    """Lee un documento segun su extension."""
-    ruta = Path(ruta)
-    if not ruta.exists():
-        raise FileNotFoundError(f"No se encontro el documento: {ruta}")
-    if ruta.suffix.lower() == ".pdf":
-        return leer_pdf(ruta)
-    return leer_texto(ruta)
+    """
+    Lee un documento segun su extension y devuelve su texto.
+
+    Se conserva por compatibilidad. Cuando interese el detalle del proceso
+    (metodo empleado, advertencias, imagenes embebidas) corresponde emplear
+    core.lectores.leer, que lo devuelve completo.
+    """
+    return lectores.leer(ruta).texto
 
 
 # ---------------------------------------------------------------------------
@@ -254,14 +257,46 @@ def procesar_documentos(identificador_caso: str,
     textos_directos : diccionario {tipo_documento: contenido}, util cuando el
         texto ya fue leido en memoria (por ejemplo, desde la interfaz web).
     """
+    fragmentos, _informes = procesar_documentos_detallado(
+        identificador_caso, documentos, textos_directos)
+    return fragmentos
+
+
+def procesar_documentos_detallado(
+        identificador_caso: str,
+        documentos: Dict[str, Union[str, Path]],
+        textos_directos: Optional[Dict[str, str]] = None
+) -> tuple:
+    """
+    Procesa los documentos y devuelve (fragmentos, informes_de_lectura).
+
+    El informe de lectura de cada documento consigna el metodo empleado, las
+    advertencias y las imagenes halladas. Es lo que permite exhibir que un
+    documento se incorporo sin aportar texto, en lugar de omitirlo en
+    silencio: un PDF escaneado sin reconocimiento optico produce cero
+    fragmentos, y quien no lo advierta supondra que el sistema lo considero.
+    """
     fragmentos: List[Fragmento] = []
+    informes: List[Dict] = []
     textos_directos = textos_directos or {}
 
     fuentes: Dict[str, tuple] = {}
     for tipo, ruta in (documentos or {}).items():
-        fuentes[tipo] = (Path(ruta).name, leer_documento(ruta))
+        lectura = lectores.leer(ruta)
+        informe = lectura.como_dict()
+        informe.pop("texto", None)
+        informe.update({"tipo_documento": tipo,
+                        "nombre_documento": Path(ruta).name})
+        informes.append(informe)
+        fuentes[tipo] = (Path(ruta).name, lectura.texto)
+
     for tipo, contenido in textos_directos.items():
         fuentes[tipo] = (f"{tipo}.txt", contenido)
+        informes.append({"tipo_documento": tipo,
+                         "nombre_documento": f"{tipo}.txt",
+                         "metodo": "texto ingresado directamente",
+                         "advertencias": [], "imagenes": [], "paginas": None,
+                         "tiene_texto": bool((contenido or "").strip())})
 
     for tipo, (nombre, crudo) in fuentes.items():
         texto = normalizar(crudo)
@@ -277,7 +312,14 @@ def procesar_documentos(identificador_caso: str,
                 )
             )
 
-    return fragmentos
+    # Se consigna la cantidad de fragmentos aportados por cada documento, que
+    # es la medida concreta de su incidencia sobre el analisis.
+    for informe in informes:
+        informe["fragmentos"] = sum(
+            1 for f in fragmentos
+            if f.tipo_documento == informe["tipo_documento"])
+
+    return fragmentos, informes
 
 
 def cargar_caso_demo(directorio: Union[str, Path]) -> Dict[str, Path]:

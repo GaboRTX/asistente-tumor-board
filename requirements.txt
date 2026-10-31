@@ -11,6 +11,26 @@ pypdf>=4.0                 # lectura de documentos en PDF
 reportlab>=4.0             # exportacion del reporte final a PDF
 python-dotenv>=1.0         # lectura de la configuracion desde archivo .env
 
+# --- Formatos de documento (recomendadas) -----------------------------------
+# Sin estas dependencias el sistema lee texto plano y PDF. Cada formato que
+# falte se informa de manera expresa al cargar el documento; nunca se lo omite
+# en silencio.
+python-docx>=1.1            # documentos de Word (.docx)
+odfpy>=1.4                  # documentos ODF (.odt)
+openpyxl>=3.1               # planillas de calculo (.xlsx)
+beautifulsoup4>=4.12        # paginas y documentos HTML
+striprtf>=0.0.26            # documentos RTF
+Pillow>=10.0                # apertura de imagenes
+
+# --- Reconocimiento optico de caracteres (opcional) -------------------------
+# Habilita la lectura de PDF escaneados e imagenes. Requiere ademas instalar
+# el programa Tesseract, que no se distribuye por pip:
+#   Windows: https://github.com/UB-Mannheim/tesseract/wiki
+# Sin el, las imagenes se conservan adjuntas y se declara que no aportan
+# texto al analisis.
+pytesseract>=0.3.10
+pdf2image>=1.17
+
 # --- Recuperacion semantica (recomendada) -----------------------------------
 # Habilita el motor de embeddings multilingues. Sin esta dependencia el
 # sistema opera con el motor TF-IDF, que no requiere descarga de modelos.
