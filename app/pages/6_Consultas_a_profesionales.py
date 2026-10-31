@@ -21,12 +21,15 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (barra_lateral, configurar_pagina, dato, encabezado,
-                       enlace_pagina, estado, requerir_resumen)
+from app.comun import (barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, requerir_resumen, requerir_sesion)
 from core import consultas, correo, db
 
 
 configurar_pagina("Consultas a profesionales")
+
+# Streamlit admite dirigirse a cualquier pantalla por su direccion, de modo
+# que proteger unicamente la inicial dejaria el resto accesible.
+requerir_sesion()
 encabezado(
     "Consultas a profesionales",
     "Circulacion del caso para revision por especialidad, previa a la "

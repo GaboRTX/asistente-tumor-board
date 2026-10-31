@@ -18,11 +18,15 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (barra_lateral, configurar_pagina, encabezado, estado)
+from app.comun import (barra_lateral, configurar_pagina, encabezado, estado, requerir_sesion)
 from core import db, feedback
 
 
 configurar_pagina("Curacion de correcciones")
+
+# Streamlit admite dirigirse a cualquier pantalla por su direccion, de modo
+# que proteger unicamente la inicial dejaria el resto accesible.
+requerir_sesion()
 encabezado(
     "Curacion de correcciones",
     "Las correcciones influyen sobre casos futuros unicamente despues de ser "

@@ -40,6 +40,18 @@ RESUMEN = {
 }
 
 
+def _iniciar_sesion(at, ruta_db):
+    """Siembra una sesion iniciada en la prueba."""
+    from app.comun import CLAVE_SESION
+    from core import acceso
+
+    acceso.inicializar_padron(ruta_db)
+    usuario = acceso.autenticar("mrossi", "tumorboard.2026", ruta_db)
+    assert usuario is not None, "el padron inicial debe permitir el ingreso"
+    at.session_state[CLAVE_SESION] = usuario
+    return usuario
+
+
 def _estado_con_caso(ruta_db):
     from core import db
 
@@ -68,6 +80,7 @@ def base(tmp_path, monkeypatch):
 
 def test_la_pantalla_de_inicio_se_ejecuta_sin_error(base):
     at = AppTest.from_file(str(RAIZ / "app" / "Inicio.py"), default_timeout=30)
+    _iniciar_sesion(at, base)
     at.run()
     assert not at.exception, [str(e) for e in at.exception]
 
@@ -83,6 +96,7 @@ def test_cada_pantalla_se_ejecuta_sin_error(pantalla, base):
 
     at = AppTest.from_file(str(RAIZ / "app" / "pages" / pantalla),
                            default_timeout=30)
+    _iniciar_sesion(at, base)
     at.session_state[CLAVE_ESTADO] = _estado_con_caso(base)
     at.run()
 
@@ -108,6 +122,7 @@ def test_el_panel_de_consultas_registra_y_exhibe_la_consulta(base):
     at = AppTest.from_file(
         str(RAIZ / "app" / "pages" / "6_Consultas_a_profesionales.py"),
         default_timeout=30)
+    _iniciar_sesion(at, base)
     at.session_state[CLAVE_ESTADO] = estado
     at.run()
 
@@ -127,9 +142,71 @@ def test_el_reporte_advierte_que_el_caso_no_fue_revisado(base):
 
     at = AppTest.from_file(str(RAIZ / "app" / "pages" / "4_Reporte_final.py"),
                            default_timeout=30)
+    _iniciar_sesion(at, base)
     at.session_state[CLAVE_ESTADO] = _estado_con_caso(base)
     at.run()
 
     assert not at.exception, [str(e) for e in at.exception]
     avisos = " ".join(str(w.value) for w in at.warning)
     assert "no fue sometido a revision" in avisos
+
+
+# ---------------------------------------------------------------------------
+# Acceso
+# ---------------------------------------------------------------------------
+
+def test_toda_pantalla_exige_sesion_iniciada():
+    """
+    Streamlit admite dirigirse a cualquier pantalla por su direccion. Proteger
+    unicamente la inicial dejaria el resto accesible escribiendo la URL, de
+    modo que la verificacion recorre todas.
+    """
+    archivos = list((RAIZ / "app" / "pages").glob("*.py"))
+    archivos.append(RAIZ / "app" / "Inicio.py")
+
+    desprotegidas = [a.name for a in archivos
+                     if "requerir_sesion()" not in a.read_text(encoding="utf-8")]
+
+    assert not desprotegidas, (
+        f"pantallas accesibles sin sesion: {desprotegidas}")
+
+
+@pytest.mark.parametrize("pantalla", PANTALLAS)
+def test_sin_sesion_la_pantalla_no_exhibe_el_caso(pantalla, base):
+    """
+    Sin sesion iniciada debe presentarse el ingreso, y no el contenido del
+    caso, aun cuando el estado de sesion contenga uno cargado.
+    """
+    from app.comun import CLAVE_ESTADO
+
+    at = AppTest.from_file(str(RAIZ / "app" / "pages" / pantalla),
+                           default_timeout=30)
+    at.session_state[CLAVE_ESTADO] = _estado_con_caso(base)
+    at.run()
+
+    assert not at.exception, [str(e) for e in at.exception]
+
+    texto = " ".join(str(m.value) for m in at.markdown)
+    assert "Ingreso al sistema" in texto, (
+        f"{pantalla} no presenta el ingreso sin sesion")
+    assert "Astrocitoma" not in texto, (
+        f"{pantalla} exhibe contenido del caso sin sesion iniciada")
+
+
+def test_con_sesion_iniciada_la_pantalla_funciona(base):
+    from app.comun import CLAVE_ESTADO, CLAVE_SESION
+    from core import acceso
+
+    acceso.inicializar_padron(base)
+    usuario = acceso.autenticar("mrossi", "tumorboard.2026", base)
+    assert usuario is not None
+
+    at = AppTest.from_file(str(RAIZ / "app" / "pages" / "2_Resumen_del_caso.py"),
+                           default_timeout=30)
+    at.session_state[CLAVE_SESION] = usuario
+    at.session_state[CLAVE_ESTADO] = _estado_con_caso(base)
+    at.run()
+
+    assert not at.exception, [str(e) for e in at.exception]
+    texto = " ".join(str(m.value) for m in at.markdown)
+    assert "Ingreso al sistema" not in texto

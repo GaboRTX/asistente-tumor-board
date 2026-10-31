@@ -3,6 +3,11 @@
 
 # Datos generados en tiempo de ejecucion
 data/asistente.db
+
+# Padron de usuarios. Contiene derivaciones de clave, no claves en texto
+# plano, pero no corresponde versionarlo: cada despliegue tiene el suyo y
+# las claves cambiadas no deben viajar al repositorio.
+data/usuarios.json
 data/almacen/
 data/salidas/
 

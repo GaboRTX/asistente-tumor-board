@@ -14,13 +14,16 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (barra_lateral, configurar_pagina, encabezado,
-                       requerir_resumen)
+from app.comun import (barra_lateral, configurar_pagina, encabezado, requerir_resumen, requerir_sesion)
 from core import consultas, reporte
 from core.config import TEXTO_SIN_DATO
 
 
 configurar_pagina("Reporte final")
+
+# Streamlit admite dirigirse a cualquier pantalla por su direccion, de modo
+# que proteger unicamente la inicial dejaria el resto accesible.
+requerir_sesion()
 encabezado(
     "Reporte final del caso",
     "Documento consolidado para su distribucion previa a la junta.",

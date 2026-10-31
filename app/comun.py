@@ -19,7 +19,7 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from core import db
+from core import acceso, db
 from core.config import TIPOS_DOCUMENTO
 
 
@@ -48,6 +48,78 @@ def inicializar_app() -> None:
 def estado() -> Dict[str, Any]:
     inicializar_app()
     return st.session_state[CLAVE_ESTADO]
+
+
+# ---------------------------------------------------------------------------
+# Acceso
+# ---------------------------------------------------------------------------
+
+CLAVE_SESION = "usuario_sesion"
+
+
+def usuario_actual():
+    """Devuelve el usuario de la sesion, o None."""
+    return st.session_state.get(CLAVE_SESION)
+
+
+def cerrar_sesion() -> None:
+    st.session_state.pop(CLAVE_SESION, None)
+    st.session_state.pop(CLAVE_ESTADO, None)
+
+
+def requerir_sesion():
+    """
+    Exige una sesion iniciada. Presenta el formulario de ingreso y detiene la
+    ejecucion de la pantalla mientras no haya usuario autenticado.
+
+    Se invoca desde todas las pantallas: Streamlit permite dirigirse a
+    cualquiera por su direccion, de modo que proteger unicamente la inicial
+    dejaria el resto accesible.
+    """
+    inicializar_app()
+    acceso.inicializar_padron()
+
+    usuario = usuario_actual()
+    if usuario is not None:
+        return usuario
+
+    _formulario_de_ingreso()
+    st.stop()
+
+
+def _formulario_de_ingreso() -> None:
+    st.markdown("## Ingreso al sistema")
+    st.caption(
+        "Asistente de preparacion de casos para junta de neuro-oncologia. "
+        "La identidad con la que ingrese quedara asentada en las "
+        "correcciones y validaciones que registre."
+    )
+
+    with st.form("ingreso"):
+        nombre_usuario = st.text_input("Usuario")
+        clave = st.text_input("Clave", type="password")
+        if st.form_submit_button("Ingresar", type="primary"):
+            usuario = acceso.autenticar(nombre_usuario, clave)
+            if usuario is None:
+                # No se distingue cual de los dos datos fallo: hacerlo
+                # permitiria enumerar los usuarios validos.
+                st.error("Usuario o clave incorrectos.")
+            else:
+                st.session_state[CLAVE_SESION] = usuario
+                estado()["autor"] = usuario.etiqueta
+                st.rerun()
+
+    with st.expander("Credenciales de demostracion"):
+        st.caption(
+            "El sistema se distribuye con tres credenciales de puesta en "
+            "marcha, publicadas en el repositorio. Por esa razon no "
+            "constituyen un secreto y deben sustituirse en cualquier "
+            "despliegue real."
+        )
+        for registro in acceso.PADRON_INICIAL:
+            st.markdown(
+                f"- **{registro['usuario']}** / `{registro['clave']}` "
+                f"- {registro['nombre']}, {registro['especialidad']}")
 
 
 def fijar(**valores) -> None:
@@ -114,19 +186,25 @@ def barra_lateral() -> None:
 
         st.markdown("---")
         st.markdown("### Profesional")
-        autor = st.text_input(
-            "Nombre para registrar correcciones",
-            value=e.get("autor", ""),
-            key="campo_autor",
-            help="Se registra como autor de las correcciones y validaciones.",
-        )
-        if autor != e.get("autor", ""):
-            fijar(autor=autor)
+        usuario = usuario_actual()
+        if usuario is not None:
+            st.markdown(f"**{usuario.nombre}**")
+            st.caption(usuario.especialidad)
+            st.caption(f"Usuario: {usuario.usuario}")
+            if e.get("autor") != usuario.etiqueta:
+                fijar(autor=usuario.etiqueta)
+        else:
+            st.caption("Sin sesion iniciada.")
 
         st.markdown("---")
         if e.get("identificador") and st.button("Cerrar caso en curso",
                                                 use_container_width=True):
             limpiar_caso()
+            st.rerun()
+
+        if usuario is not None and st.button("Cerrar sesion",
+                                             use_container_width=True):
+            cerrar_sesion()
             st.rerun()
 
 

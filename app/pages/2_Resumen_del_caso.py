@@ -19,12 +19,16 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, fijar, requerir_resumen)
+from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, fijar, requerir_resumen, requerir_sesion)
 from core import db, feedback
 from core.config import TEXTO_SIN_DATO
 
 
 configurar_pagina("Resumen del caso")
+
+# Streamlit admite dirigirse a cualquier pantalla por su direccion, de modo
+# que proteger unicamente la inicial dejaria el resto accesible.
+requerir_sesion()
 encabezado(
     "Resumen estructurado del caso",
     "Cada campo indica el fragmento documental que lo respalda.",

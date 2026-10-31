@@ -20,11 +20,15 @@ if str(RAIZ) not in sys.path:
 import pandas as pd
 import streamlit as st
 
-from app.comun import barra_lateral, configurar_pagina, encabezado, estado
+from app.comun import (barra_lateral, configurar_pagina, encabezado, estado, requerir_sesion)
 from core import db, metricas
 
 
 configurar_pagina("Metricas")
+
+# Streamlit admite dirigirse a cualquier pantalla por su direccion, de modo
+# que proteger unicamente la inicial dejaria el resto accesible.
+requerir_sesion()
 encabezado(
     "Metricas del sistema",
     "Tiempos de procesamiento, calidad de las salidas y evolucion de la tasa "

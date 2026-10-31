@@ -11,13 +11,17 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, estado, fijar)
+from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, estado, fijar, requerir_sesion)
 from core import db, feedback, metricas
 from core.llm import detectar_proveedor
 from core.vectorizacion import motor_disponible, MOTOR_EMBEDDINGS
 
 
 configurar_pagina("Inicio")
+
+# Streamlit admite dirigirse a cualquier pantalla por su direccion, de modo
+# que proteger unicamente la inicial dejaria el resto accesible.
+requerir_sesion()
 encabezado(
     "Asistente de preparacion de casos para junta de neuro-oncologia",
     "Sintesis documental asistida con trazabilidad de fuentes y busqueda de "

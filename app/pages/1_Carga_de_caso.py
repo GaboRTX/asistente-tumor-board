@@ -18,7 +18,7 @@ if str(RAIZ) not in sys.path:
 
 import streamlit as st
 
-from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, etiqueta_documento, fijar, limpiar_caso)
+from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, etiqueta_documento, fijar, limpiar_caso, requerir_sesion)
 from core import db
 from core.config import DIR_CASOS_DEMO, TIPOS_DOCUMENTO
 from core.ingesta import cargar_caso_demo, procesar_documentos
@@ -28,6 +28,10 @@ from core.vectorizacion import construir_indice
 
 
 configurar_pagina("Carga de caso")
+
+# Streamlit admite dirigirse a cualquier pantalla por su direccion, de modo
+# que proteger unicamente la inicial dejaria el resto accesible.
+requerir_sesion()
 encabezado(
     "Carga de caso",
     "Seleccione un caso de demostracion o cargue los documentos de un caso "
