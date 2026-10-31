@@ -165,3 +165,34 @@ def test_el_envio_exitoso_se_informa(consulta):
     assert resultado.enviado
     assert len(enviados) == 1
     assert enviados[0]["To"] == "ana.perez@hospital.org"
+
+
+# ---------------------------------------------------------------------------
+# Formato de la contrasenia de aplicacion
+# ---------------------------------------------------------------------------
+
+def test_se_tolera_el_formato_en_que_google_exhibe_la_contrasenia():
+    """
+    Google presenta las contrasenias de aplicacion en cuatro bloques de cuatro
+    letras separados por espacios. Copiarla tal como se la ve produce un
+    rechazo de credenciales cuyo motivo no resulta evidente.
+    """
+    from core.config import _normalizar_clave_smtp
+
+    assert _normalizar_clave_smtp("abcd efgh ijkl mnop") == "abcdefghijklmnop"
+    assert _normalizar_clave_smtp("  abcd efgh ijkl mnop  ") == "abcdefghijklmnop"
+    assert _normalizar_clave_smtp("abcdefghijklmnop") == "abcdefghijklmnop"
+
+
+def test_no_se_alteran_las_contrasenias_de_otra_forma():
+    """
+    La normalizacion se restringe al formato de Google. Una contrasenia
+    corriente que contenga espacios debe conservarse intacta: alterarla
+    produciria un fallo de autenticacion imputado al servidor.
+    """
+    from core.config import _normalizar_clave_smtp
+
+    assert _normalizar_clave_smtp("mi clave secreta") == "mi clave secreta"
+    assert _normalizar_clave_smtp("Abcd Efgh Ijkl Mnop") == "Abcd Efgh Ijkl Mnop"
+    assert _normalizar_clave_smtp("abcd efgh ijkl") == "abcd efgh ijkl"
+    assert _normalizar_clave_smtp("") == ""

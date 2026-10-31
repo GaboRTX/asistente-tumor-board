@@ -5,6 +5,7 @@ Toda ruta o parametro ajustable del sistema se define aca, de manera que
 ningun otro modulo tenga rutas escritas de forma fija en el codigo.
 """
 
+import re
 import os
 from pathlib import Path
 
@@ -79,7 +80,26 @@ MODELO_LLM = os.getenv("MODELO_LLM", "")
 SMTP_SERVIDOR = os.getenv("SMTP_SERVIDOR", "")
 SMTP_PUERTO = int(os.getenv("SMTP_PUERTO", "587") or "587")
 SMTP_USUARIO = os.getenv("SMTP_USUARIO", "")
-SMTP_CLAVE = os.getenv("SMTP_CLAVE", "")
+def _normalizar_clave_smtp(valor: str) -> str:
+    """
+    Tolera el formato en que Google exhibe las contrasenias de aplicacion.
+
+    Google las presenta en cuatro bloques de cuatro letras separados por
+    espacios. Los espacios son de presentacion y no integran la contrasenia,
+    de modo que copiarla tal como se la ve produce un rechazo de credenciales
+    cuyo motivo no resulta evidente.
+
+    La normalizacion se restringe a esa forma exacta. Toda otra contrasenia se
+    conserva intacta, incluidos los espacios que pudiera contener
+    legitimamente.
+    """
+    bruto = (valor or "").strip()
+    if re.fullmatch(r"[a-z]{4}(?: [a-z]{4}){3}", bruto):
+        return bruto.replace(" ", "")
+    return bruto
+
+
+SMTP_CLAVE = _normalizar_clave_smtp(os.getenv("SMTP_CLAVE", ""))
 SMTP_REMITENTE = os.getenv("SMTP_REMITENTE", "") or SMTP_USUARIO
 SMTP_INSTITUCION = os.getenv("SMTP_INSTITUCION", "")
 TIMEOUT_SMTP = 20
