@@ -20,8 +20,11 @@ import streamlit as st
 
 from app.comun import (aviso_clinico, barra_lateral, configurar_pagina, dato, encabezado, enlace_pagina, estado, etiqueta_documento, fijar, limpiar_caso, requerir_sesion)
 from core import db
-from core.config import DIR_CASOS_DEMO, TIPOS_DOCUMENTO
-from core.ingesta import cargar_caso_demo, procesar_documentos
+from core.config import TIPOS_DOCUMENTO
+from core.ingesta import procesar_documentos
+from core.lectores import extensiones_admitidas, ocr_disponible
+
+EXTENSIONES_ADMITIDAS = extensiones_admitidas()
 from core.perfil_molecular import extraer_perfil, resumir_para_busqueda
 from core.rag import generar_resumen
 from core.vectorizacion import construir_indice
@@ -34,17 +37,13 @@ configurar_pagina("Carga de caso")
 requerir_sesion()
 encabezado(
     "Carga de caso",
-    "Seleccione un caso de demostracion o cargue los documentos de un caso "
-    "propio.",
+    "Cargue los documentos del caso para su procesamiento.",
 )
 barra_lateral()
 aviso_clinico()
 
 e = estado()
 
-pestania_demo, pestania_propia = st.tabs(
-    ["Casos de demostracion", "Cargar documentos"]
-)
 
 
 # ---------------------------------------------------------------------------
@@ -163,108 +162,73 @@ def procesar(identificador: str, documentos: dict = None,
 
 
 # ---------------------------------------------------------------------------
-# Casos de demostracion
-# ---------------------------------------------------------------------------
-
-with pestania_demo:
-    disponibles = sorted(
-        [d.name for d in DIR_CASOS_DEMO.iterdir() if d.is_dir()]
-    ) if DIR_CASOS_DEMO.exists() else []
-
-    if not disponibles:
-        st.warning(
-            "No se encontraron casos de demostracion. Ejecute "
-            "`python scripts/generar_casos_demo.py` para crearlos."
-        )
-    else:
-        st.markdown(
-            "Los casos de demostracion son documentos sinteticos construidos "
-            "a partir de patrones descriptos en la literatura publicada. "
-            "No corresponden a pacientes reales ni contienen datos "
-            "identificatorios."
-        )
-
-        seleccion = st.selectbox("Caso de demostracion", disponibles)
-        documentos = cargar_caso_demo(DIR_CASOS_DEMO / seleccion)
-
-        st.markdown("**Documentos disponibles en el caso**")
-        faltantes = [t for t in TIPOS_DOCUMENTO if t not in documentos]
-        columnas = st.columns(len(TIPOS_DOCUMENTO))
-        for i, tipo in enumerate(TIPOS_DOCUMENTO):
-            with columnas[i]:
-                if tipo in documentos:
-                    st.success(etiqueta_documento(tipo))
-                else:
-                    st.error(f"{etiqueta_documento(tipo)}: ausente")
-
-        if faltantes:
-            st.info(
-                "El caso no incluye la totalidad de los documentos. El sistema "
-                "procesara los disponibles y declarara como no documentados "
-                "los campos que no pueda respaldar."
-            )
-
-        with st.expander("Ver el contenido de los documentos"):
-            for tipo, ruta in documentos.items():
-                st.markdown(f"**{etiqueta_documento(tipo)}**")
-                st.text(Path(ruta).read_text(encoding="utf-8")[:1500])
-
-        if st.button("Procesar caso", type="primary", use_container_width=True):
-            existente = db.buscar_caso_por_identificador(seleccion)
-            if existente:
-                st.caption(
-                    "El caso ya estaba registrado. Se generara un nuevo "
-                    "resumen conservando el historial anterior."
-                )
-            procesar(seleccion, documentos=documentos)
-
-
-# ---------------------------------------------------------------------------
 # Carga de documentos propios
 # ---------------------------------------------------------------------------
 
-with pestania_propia:
+st.markdown(
+    "Cargue los documentos del caso. "
+    "**Utilice unicamente un identificador anonimizado**: el sistema no "
+    "requiere ni debe recibir datos que permitan identificar al paciente."
+)
+
+identificador = st.text_input(
+    "Identificador anonimizado del caso",
+    placeholder="CASO-006",
+    help="Por ejemplo: CASO-006. No utilice nombre, documento ni numero "
+         "de historia clinica.",
+)
+
+archivos = {}
+columnas = st.columns(2)
+for i, (tipo, etiqueta) in enumerate(TIPOS_DOCUMENTO.items()):
+    with columnas[i % 2]:
+        archivos[tipo] = st.file_uploader(
+            etiqueta, type=EXTENSIONES_ADMITIDAS, key=f"carga_{tipo}"
+        )
+
+with st.expander("Formatos admitidos"):
     st.markdown(
-        "Cargue los documentos del caso en formato PDF o texto. "
-        "**Utilice unicamente un identificador anonimizado**: el sistema no "
-        "requiere ni debe recibir datos que permitan identificar al paciente."
+        "Documentos de texto (`txt`, `md`, `csv`, `json`), paginas `html`, "
+        "documentos de Word (`docx`), ODF (`odt`), `rtf`, planillas `xlsx`, "
+        "`pdf` e imagenes (`png`, `jpg`, `tiff`, `bmp`, `webp`)."
     )
-
-    identificador = st.text_input(
-        "Identificador anonimizado del caso",
-        placeholder="CASO-006",
-        help="Por ejemplo: CASO-006. No utilice nombre, documento ni numero "
-             "de historia clinica.",
+    st.caption(
+        "El texto de las tablas de un documento de Word se incorpora al "
+        "analisis. Los documentos de Word anteriores a 2007 (`.doc`) deben "
+        "convertirse previamente a `.docx` o a PDF."
     )
+    if ocr_disponible():
+        st.caption(
+            "Reconocimiento optico disponible: los PDF escaneados y las "
+            "imagenes se procesan y aportan texto al analisis."
+        )
+    else:
+        st.caption(
+            "Sin reconocimiento optico de caracteres. Los PDF escaneados y "
+            "las imagenes se conservan adjuntos pero no aportan texto al "
+            "analisis, y el sistema lo declara al procesar el caso."
+        )
 
-    archivos = {}
-    columnas = st.columns(2)
-    for i, (tipo, etiqueta) in enumerate(TIPOS_DOCUMENTO.items()):
-        with columnas[i % 2]:
-            archivos[tipo] = st.file_uploader(
-                etiqueta, type=["pdf", "txt", "md"], key=f"carga_{tipo}"
-            )
+notas = st.text_area("Observaciones (opcional)", height=80)
 
-    notas = st.text_area("Observaciones (opcional)", height=80)
+cargados = {t: a for t, a in archivos.items() if a is not None}
 
-    cargados = {t: a for t, a in archivos.items() if a is not None}
+if cargados:
+    st.caption(f"{len(cargados)} documento(s) listo(s) para procesar.")
 
-    if cargados:
-        st.caption(f"{len(cargados)} documento(s) listo(s) para procesar.")
+listo = bool(identificador.strip()) and bool(cargados)
+if not identificador.strip() and cargados:
+    st.warning("Indique un identificador anonimizado para continuar.")
 
-    listo = bool(identificador.strip()) and bool(cargados)
-    if not identificador.strip() and cargados:
-        st.warning("Indique un identificador anonimizado para continuar.")
+if st.button("Procesar caso", type="primary", disabled=not listo,
+             use_container_width=True, key="procesar_propio"):
+    import tempfile
 
-    if st.button("Procesar caso", type="primary", disabled=not listo,
-                 use_container_width=True, key="procesar_propio"):
-        import tempfile
+    temporal = Path(tempfile.mkdtemp())
+    rutas = {}
+    for tipo, archivo in cargados.items():
+        destino = temporal / f"{tipo}{Path(archivo.name).suffix or '.txt'}"
+        destino.write_bytes(archivo.getbuffer())
+        rutas[tipo] = destino
 
-        temporal = Path(tempfile.mkdtemp())
-        rutas = {}
-        for tipo, archivo in cargados.items():
-            destino = temporal / f"{tipo}{Path(archivo.name).suffix or '.txt'}"
-            destino.write_bytes(archivo.getbuffer())
-            rutas[tipo] = destino
-
-        procesar(identificador.strip(), documentos=rutas, notas=notas)
+    procesar(identificador.strip(), documentos=rutas, notas=notas)

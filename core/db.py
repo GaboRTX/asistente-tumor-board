@@ -401,6 +401,60 @@ def _desempaquetar_consulta(fila) -> Optional[Dict[str, Any]]:
 # Tiempos manuales
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Borrado del historico
+# ---------------------------------------------------------------------------
+
+# Tablas que componen el historico, en orden de borrado. Las dependencias se
+# declaran con ON DELETE CASCADE, pero el borrado explicito no depende de que
+# las claves foraneas esten habilitadas en la conexion.
+TABLAS_HISTORICO = ("consultas", "correcciones", "feedback", "generaciones",
+                    "casos", "tiempos_manuales")
+
+
+def contar_historico(ruta: Optional[Path] = None) -> Dict[str, int]:
+    """
+    Cuenta los registros de cada tabla del historico.
+
+    Se emplea para exhibir que se va a borrar antes de confirmar. Un boton de
+    borrado total sin esa constancia previa invita al accidente.
+    """
+    conteo: Dict[str, int] = {}
+    with conexion(ruta) as con:
+        for tabla in TABLAS_HISTORICO:
+            try:
+                conteo[tabla] = con.execute(
+                    f"SELECT COUNT(*) FROM {tabla}").fetchone()[0]
+            except sqlite3.Error:
+                conteo[tabla] = 0
+    return conteo
+
+
+def borrar_historico(ruta: Optional[Path] = None) -> Dict[str, int]:
+    """
+    Elimina la totalidad del historico y devuelve lo efectivamente borrado.
+
+    No alcanza al padron de usuarios ni a la configuracion: su objeto es
+    dejar el sistema en condiciones de una demostracion limpia, no
+    desinstalarlo.
+    """
+    borrados = contar_historico(ruta)
+    with conexion(ruta) as con:
+        for tabla in TABLAS_HISTORICO:
+            try:
+                con.execute(f"DELETE FROM {tabla}")
+            except sqlite3.Error:
+                borrados[tabla] = 0
+        # Se reinician los contadores para que la numeracion vuelva a
+        # empezar, de modo que la demostracion no exhiba identificadores
+        # heredados de pruebas anteriores.
+        try:
+            con.execute("DELETE FROM sqlite_sequence")
+        except sqlite3.Error:
+            pass
+    return borrados
+
+
 def registrar_tiempo_manual(descripcion: str, minutos: float, fuente: str,
                             ruta: Optional[Path] = None) -> int:
     with conexion(ruta) as con:

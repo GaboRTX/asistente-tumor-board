@@ -246,3 +246,75 @@ def test_sin_consultas_no_hay_circuito_habilitado(base):
     ruta, caso_id = base
     assert not consultas.estado_del_circuito(caso_id, ruta=ruta)[
         "habilitado_para_decision"]
+
+
+# ---------------------------------------------------------------------------
+# Borrado del historico
+# ---------------------------------------------------------------------------
+
+def test_el_borrado_total_vacia_todas_las_tablas(base):
+    """
+    El borrado debe alcanzar a la totalidad del historico. Una tabla omitida
+    dejaria registros huerfanos que reapareceran en las metricas.
+    """
+    ruta, caso_id = base
+    db.registrar_generacion(caso_id, "resumen", {"x": 1}, [], "modelo",
+                            "conectado", 1.0, ruta=ruta)
+    consultas.crear_consulta(caso_id, "CASO-001", RESUMEN, "Ana",
+                             "anatomia_patologica", "ana@h.org", ruta=ruta)
+    db.registrar_tiempo_manual("preparacion", 30.0, "medicion", ruta=ruta)
+
+    antes = db.contar_historico(ruta)
+    assert sum(antes.values()) > 0
+
+    db.borrar_historico(ruta)
+
+    despues = db.contar_historico(ruta)
+    assert sum(despues.values()) == 0, f"quedaron registros: {despues}"
+
+
+def test_el_borrado_informa_lo_efectivamente_eliminado(base):
+    ruta, caso_id = base
+    consultas.crear_consulta(caso_id, "CASO-001", RESUMEN, "Ana",
+                             "anatomia_patologica", "ana@h.org", ruta=ruta)
+
+    borrados = db.borrar_historico(ruta)
+    assert borrados["casos"] == 1
+    assert borrados["consultas"] == 1
+
+
+def test_el_borrado_de_un_caso_arrastra_sus_consultas(base):
+    ruta, caso_id = base
+    consultas.crear_consulta(caso_id, "CASO-001", RESUMEN, "Ana",
+                             "anatomia_patologica", "ana@h.org", ruta=ruta)
+    otro = db.crear_caso("CASO-002", {"patologia": "p.txt"}, ruta=ruta)
+    consultas.crear_consulta(otro, "CASO-002", RESUMEN, "Beto",
+                             "neurologia", "beto@h.org", ruta=ruta)
+
+    db.eliminar_caso(caso_id, ruta=ruta)
+
+    assert db.listar_consultas(caso_id, ruta=ruta) == []
+    assert len(db.listar_consultas(otro, ruta=ruta)) == 1, (
+        "el borrado de un caso no debe afectar a los demas")
+
+
+def test_el_borrado_no_alcanza_al_padron_de_usuarios(base, tmp_path):
+    """
+    El objeto del borrado es dejar el sistema listo para una demostracion, no
+    desinstalarlo. Perder el padron impediria volver a ingresar.
+    """
+    from core import acceso
+
+    ruta, caso_id = base
+    acceso.inicializar_padron(ruta)
+    db.borrar_historico(ruta)
+
+    assert len(acceso.listar_usuarios(ruta)) == 3
+    assert acceso.autenticar("mrossi", "tumorboard.2026", ruta) is not None
+
+
+def test_el_borrado_sobre_un_historico_vacio_no_falla(base):
+    ruta, _caso_id = base
+    db.borrar_historico(ruta)
+    db.borrar_historico(ruta)
+    assert sum(db.contar_historico(ruta).values()) == 0
