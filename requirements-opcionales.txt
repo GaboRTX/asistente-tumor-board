@@ -1,0 +1,32 @@
+# Capacidades opcionales del asistente de preparacion de casos
+#
+# Instalacion:  pip install -r requirements-opcionales.txt
+#
+# Ninguna de estas dependencias es necesaria para que el sistema funcione.
+# Cada una habilita una capacidad adicional, y su ausencia se declara en
+# pantalla en lugar de degradar el resultado en silencio.
+#
+# ADVERTENCIA SOBRE EL VOLUMEN DE DESCARGA
+# sentence-transformers instala PyTorch, que supera los 2 GB. No conviene
+# instalarlo sobre una conexion lenta ni el mismo dia de una demostracion.
+
+# --- Recuperacion semantica -------------------------------------------------
+# Habilita el motor de embeddings multilingues, que recupera fragmentos por
+# significado y no solo por coincidencia de terminos. Sin esta dependencia el
+# sistema emplea TF-IDF, que no requiere descarga de modelos.
+#
+# Descarga aproximada: 2,5 GB de biblioteca mas 470 MB del modelo, que se
+# baja en la primera ejecucion. Luego opera sin conexion.
+sentence-transformers>=2.2
+
+# --- Reconocimiento optico de caracteres ------------------------------------
+# Habilita la lectura de PDF escaneados e imagenes. Requiere ademas instalar
+# el programa Tesseract, que no se distribuye por pip:
+#   Windows: https://github.com/UB-Mannheim/tesseract/wiki
+#   macOS:   brew install tesseract tesseract-lang
+#   Debian:  sudo apt install tesseract-ocr tesseract-ocr-spa poppler-utils
+#
+# Sin el, las imagenes y los PDF escaneados se conservan adjuntos y el
+# sistema declara que no aportan texto al analisis.
+pytesseract>=0.3.10
+pdf2image>=1.17

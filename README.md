@@ -35,10 +35,12 @@ al equipo médico tratante.
 
 ## Instalación
 
-Requiere Python 3.10 o superior.
+Requiere Python 3.10 o superior. No utilice Python 3.14 ni posterior:
+varias dependencias todavía no publican binarios precompilados para esas
+versiones.
 
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/GaboRTX/asistente-tumor-board.git
 cd asistente-tumor-board
 
 python -m venv .venv
@@ -46,6 +48,18 @@ source .venv/bin/activate        # en Windows:  .venv\Scripts\activate
 
 pip install -r requirements.txt
 ```
+
+Son 55 paquetes, 166 MB de descarga. Para verificar que la instalación
+quedó completa:
+
+```bash
+python scripts/verificar_entorno.py
+```
+
+> **Guía paso a paso.** Para una instalación desde cero, incluida la de
+> Python, el modelo de lenguaje local, la instalación sin conexión y la
+> solución de los errores más frecuentes, consulte
+> [`docs/INSTALACION.md`](docs/INSTALACION.md).
 
 ### Configuración opcional del modelo de lenguaje
 

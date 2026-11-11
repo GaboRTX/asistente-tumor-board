@@ -1,5 +1,13 @@
 # Dependencias del asistente de preparacion de casos para junta de neuro-oncologia
+#
 # Instalacion:  pip install -r requirements.txt
+#
+# Este archivo contiene lo necesario para que el sistema funcione por
+# completo. La descarga ronda los 200 MB y demora pocos minutos.
+#
+# Las capacidades que exigen descargas de gran volumen se declaran aparte, en
+# requirements-opcionales.txt. El sistema opera sin ellas y declara en
+# pantalla que lo esta haciendo.
 
 # --- Nucleo (obligatorias) --------------------------------------------------
 streamlit>=1.30
@@ -22,21 +30,5 @@ beautifulsoup4>=4.12        # paginas y documentos HTML
 striprtf>=0.0.26            # documentos RTF
 Pillow>=10.0                # apertura de imagenes
 
-# --- Reconocimiento optico de caracteres (opcional) -------------------------
-# Habilita la lectura de PDF escaneados e imagenes. Requiere ademas instalar
-# el programa Tesseract, que no se distribuye por pip:
-#   Windows: https://github.com/UB-Mannheim/tesseract/wiki
-# Sin el, las imagenes se conservan adjuntas y se declara que no aportan
-# texto al analisis.
-pytesseract>=0.3.10
-pdf2image>=1.17
-
-# --- Recuperacion semantica (recomendada) -----------------------------------
-# Habilita el motor de embeddings multilingues. Sin esta dependencia el
-# sistema opera con el motor TF-IDF, que no requiere descarga de modelos.
-# La primera ejecucion descarga el modelo (aproximadamente 470 MB) y requiere
-# conexion a internet; luego opera sin conexion.
-sentence-transformers>=2.2
-
 # --- Desarrollo -------------------------------------------------------------
-pytest>=7.4
+pytest>=7.4                 # suite de pruebas automatizadas
