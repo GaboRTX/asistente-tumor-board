@@ -14,14 +14,17 @@ cada paso indica su equivalente en macOS y Linux.
 2. [Instalar Python](#2-instalar-python)
 3. [Descargar el proyecto](#3-descargar-el-proyecto)
 4. [Crear el entorno virtual e instalar dependencias](#4-crear-el-entorno-virtual-e-instalar-dependencias)
-5. [Verificar la instalación](#5-verificar-la-instalación)
-6. [Ejecutar el sistema](#6-ejecutar-el-sistema)
-7. [Cargar un caso](#7-cargar-un-caso)
-8. [Modelo de lenguaje local, opcional](#8-modelo-de-lenguaje-local-opcional)
-9. [Capacidades opcionales adicionales](#9-capacidades-opcionales-adicionales)
-10. [Instalación sin conexión](#10-instalación-sin-conexión)
-11. [Solución de problemas](#11-solución-de-problemas)
-12. [Lista de comprobación previa a una demostración](#12-lista-de-comprobación-previa-a-una-demostración)
+5. [Instalar Ollama y descargar el modelo](#5-instalar-ollama-y-descargar-el-modelo)
+6. [Crear y completar el archivo .env](#6-crear-y-completar-el-archivo-env)
+7. [Configurar el envío de correo](#7-configurar-el-envío-de-correo)
+8. [Verificar la instalación](#8-verificar-la-instalación)
+9. [Ejecutar el sistema](#9-ejecutar-el-sistema)
+10. [Cargar un caso](#10-cargar-un-caso)
+11. [Enviar una consulta a un profesional](#11-enviar-una-consulta-a-un-profesional)
+12. [Capacidades opcionales adicionales](#12-capacidades-opcionales-adicionales)
+13. [Instalación sin conexión](#13-instalación-sin-conexión)
+14. [Solución de problemas](#14-solución-de-problemas)
+15. [Lista de comprobación previa a una demostración](#15-lista-de-comprobación-previa-a-una-demostración)
 
 ---
 
@@ -72,7 +75,7 @@ Dos alternativas, en orden de preferencia:
 1. **Llevar su propia máquina** con todo instalado y probado. Elimina todos
    los riesgos de una sola vez.
 2. **Preparar un paquete sin conexión** con antelación. El procedimiento
-   está en el [apartado 10](#10-instalación-sin-conexión).
+   está en el [apartado 13](#13-instalación-sin-conexión).
 
 ---
 
@@ -211,11 +214,295 @@ lectura de Word, ODF, planillas y PDF.
 
 **No se instala PyTorch**, que pesa más de 2 GB. Es una capacidad opcional y
 está en `requirements-opcionales.txt`, descrita en el
-[apartado 9](#9-capacidades-opcionales-adicionales).
+[apartado 12](#12-capacidades-opcionales-adicionales).
+
+Terminado este paso, continúe con la instalación de Ollama.
 
 ---
 
-## 5. Verificar la instalación
+## 5. Instalar Ollama y descargar el modelo
+
+Ollama ejecuta el modelo de lenguaje en el propio equipo. No requiere clave
+de API, ni medio de pago, ni cuenta de ningún servicio, y la documentación
+clínica no abandona la máquina. Esa última propiedad es la que resuelve la
+objeción de confidencialidad que pesa sobre cualquier servicio remoto.
+
+> **Volumen de descarga.** El instalador ronda los 700 MB y el modelo
+> ocupa 2 GB. Sobre una conexión lenta puede demorar bastante. Si va a
+> instalar en una máquina ajena, prepare el procedimiento sin conexión del
+> [apartado 13](#13-instalación-sin-conexión), que permite copiar el modelo
+> ya descargado desde un pendrive.
+
+### Paso 1. Descargar el instalador
+
+Abra <https://ollama.com/download> y elija su sistema operativo.
+
+- **Windows**: descarga `OllamaSetup.exe`
+- **macOS**: descarga un archivo `.zip` con la aplicación
+- **Linux**: entrega una línea de comando para ejecutar en la terminal
+
+### Paso 2. Ejecutar el instalador
+
+**Windows.** Haga doble clic en `OllamaSetup.exe` y acepte las opciones por
+defecto. Se instala para el usuario actual, de modo que **no hacen falta
+permisos de administrador**.
+
+Al terminar, Ollama queda corriendo en segundo plano. Lo va a ver como un
+ícono en la bandeja del sistema, abajo a la derecha junto al reloj.
+
+**macOS.** Descomprima el `.zip`, arrastre Ollama a la carpeta
+Aplicaciones y ábralo. Aparece un ícono en la barra de menú.
+
+**Linux.**
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+### Paso 3. Abrir una terminal nueva
+
+Este paso es obligatorio y es el que más problemas causa si se omite.
+
+Windows lee las rutas de los programas instalados **cuando se abre la
+terminal**. Si instaló Ollama con una terminal ya abierta, esa ventana no
+se enteró de que existe, y va a responder que el comando no se reconoce.
+
+Cierre todas las terminales abiertas y abra una nueva.
+
+### Paso 4. Comprobar que responde
+
+```powershell
+ollama --version
+```
+
+Debe devolver un número de versión. Si responde que el comando no se
+reconoce, revise el [apartado 14](#14-solución-de-problemas).
+
+### Paso 5. Descargar el modelo
+
+```powershell
+ollama pull llama3.2:3b
+```
+
+Son unos 2 GB y se descarga una sola vez. La terminal muestra el avance.
+**No cierre la ventana hasta que termine**: una descarga interrumpida deja
+el modelo incompleto y hay que repetirla.
+
+### Paso 6. Confirmar que el modelo quedó disponible
+
+```powershell
+ollama list
+```
+
+Debe aparecer `llama3.2:3b` en la lista.
+
+### Qué modelo elegir
+
+| Modelo | Descarga | Memoria recomendada |
+|---|---|---|
+| `llama3.2:3b` | 2,0 GB | 8 GB |
+| `qwen2.5:7b` | 4,7 GB | 16 GB |
+| `llama3.1:8b` | 4,7 GB | 16 GB |
+
+Conviene empezar por el más liviano. Un modelo mayor mejora la redacción,
+no la exactitud: los datos estructurados los extraen las reglas
+deterministas y no el modelo. Para usar otro, descárguelo con `ollama pull`
+y consigne su nombre en `MODELO_LLM` dentro del archivo `.env`.
+
+### La primera consulta demora
+
+La primera vez que se procesa un caso, el modelo se carga de disco a
+memoria. Puede tardar entre uno y dos minutos. Las consultas siguientes son
+sensiblemente más rápidas. No es un error ni una falla de configuración.
+
+---
+
+## 6. Crear y completar el archivo .env
+
+El archivo `.env` guarda la configuración del sistema. No viene incluido en
+el repositorio porque cada instalación tiene la suya, de modo que hay que
+crearlo a partir del ejemplo.
+
+### Paso 1. Copiar el archivo de ejemplo
+
+**Windows:**
+
+```powershell
+copy .env.example .env
+```
+
+**macOS y Linux:**
+
+```bash
+cp .env.example .env
+```
+
+### Paso 2. Abrirlo con un editor de texto
+
+En Windows puede usar el Bloc de notas:
+
+```powershell
+notepad .env
+```
+
+También sirve Visual Studio Code, o cualquier editor de texto plano. **No
+lo abra con Word**: agrega formato y el archivo deja de leerse.
+
+### Paso 3. Completar la configuración del modelo
+
+Deje estas dos líneas exactamente así:
+
+```
+PROVEEDOR_LLM=ollama
+CLAVE_API_LLM=
+```
+
+`CLAVE_API_LLM` queda vacía a propósito. La ejecución local no requiere
+credencial, porque el servicio corre en la propia máquina y no media
+autenticación.
+
+### Reglas de escritura del archivo
+
+Estas cuatro reglas evitan la mayoría de los problemas de configuración.
+
+| Regla | Correcto | Incorrecto |
+|---|---|---|
+| Sin comillas | `PROVEEDOR_LLM=ollama` | `PROVEEDOR_LLM="ollama"` |
+| Sin signos de menor y mayor | `SMTP_USUARIO=ana@gmail.com` | `SMTP_USUARIO=<ana@gmail.com>` |
+| Sin espacios alrededor del igual | `SMTP_PUERTO=587` | `SMTP_PUERTO = 587` |
+| Una variable por línea | `SMTP_PUERTO=587` | `SMTP_PUERTO=587 SMTP_USUARIO=...` |
+
+El valor es, literalmente, todo lo que viene después del signo igual.
+
+### Paso 4. Guardar el archivo
+
+En el Bloc de notas, `Ctrl + G`. Verifique que el archivo se llame `.env` y
+no `.env.txt`, que es lo que hace el Bloc de notas si no se tiene cuidado.
+Para comprobarlo:
+
+```powershell
+dir .env
+```
+
+Si aparece `.env.txt`, renómbrelo:
+
+```powershell
+ren .env.txt .env
+```
+
+---
+
+## 7. Configurar el envío de correo
+
+El sistema envía un aviso por correo al profesional que se consulta sobre
+un caso. Esta configuración es la que habilita ese envío.
+
+> **Qué viaja en ese correo.** El aviso **no transporta documentación
+> clínica**. Lleva el nombre del profesional, el código interno del caso y
+> el pedido de revisión. El contenido del caso se consulta dentro del
+> sistema. Hay una prueba automatizada que recorre el mensaje compuesto y
+> rechaza la presencia de cualquier término clínico del caso.
+>
+> Cada consulta admite **un único destinatario**. El sistema rechaza las
+> direcciones múltiples y las que contengan caracteres de control, que
+> permitirían incorporar destinatarios ocultos al mensaje.
+
+El procedimiento que sigue es para una cuenta de Gmail, que es el caso más
+frecuente. Para una cuenta institucional, pida los datos del servidor al
+área de sistemas y complete las mismas variables.
+
+### Paso 1. Activar la verificación en dos pasos
+
+Google **no permite crear contraseñas de aplicación** si la cuenta no tiene
+la verificación en dos pasos activada. Si ya la tiene, pase al paso 2.
+
+1. Abra <https://myaccount.google.com/security>
+2. Busque **Verificación en dos pasos**
+3. Actívela y siga el procedimiento, que pide confirmar un teléfono
+
+### Paso 2. Crear la contraseña de aplicación
+
+Una contraseña de aplicación es una clave de un solo uso para un programa
+concreto. **No es la contraseña de su cuenta**, y se puede revocar sin
+cambiar la contraseña principal.
+
+1. Abra <https://myaccount.google.com/apppasswords>
+2. Escriba un nombre que le permita reconocerla después, por ejemplo
+   `Asistente tumor board`
+3. Pulse **Crear**
+4. Google muestra una clave de **16 letras, en cuatro bloques de cuatro**,
+   por ejemplo `abcd efgh ijkl mnop`
+
+> **Cópiela en ese momento.** Google la muestra una sola vez. Si la pierde,
+> hay que borrarla y crear otra.
+
+Si la opción de contraseñas de aplicación no aparece, hay dos causas
+posibles: la verificación en dos pasos no está activada, o se trata de una
+cuenta de Google Workspace cuyo administrador deshabilitó esta función. En
+el segundo caso, consulte al área de sistemas.
+
+### Paso 3. Completar el archivo .env
+
+Abra `.env` y complete las variables de correo:
+
+```
+SMTP_SERVIDOR=smtp.gmail.com
+SMTP_PUERTO=587
+SMTP_USUARIO=sucuenta@gmail.com
+SMTP_CLAVE=abcd efgh ijkl mnop
+SMTP_REMITENTE=sucuenta@gmail.com
+SMTP_INSTITUCION=Hospital de demostracion
+```
+
+Sobre cada variable:
+
+| Variable | Qué va |
+|---|---|
+| `SMTP_SERVIDOR` | `smtp.gmail.com` para Gmail |
+| `SMTP_PUERTO` | `587`, que es el puerto con cifrado STARTTLS |
+| `SMTP_USUARIO` | Su dirección de correo completa |
+| `SMTP_CLAVE` | La contraseña de aplicación del paso 2, **no** la de su cuenta |
+| `SMTP_REMITENTE` | La dirección que figura como remitente. Normalmente la misma |
+| `SMTP_INSTITUCION` | Opcional. Se agrega al pie del aviso |
+
+### Sobre los espacios de la contraseña
+
+Google muestra la contraseña en cuatro bloques separados por espacios. Esos
+espacios son de presentación y no forman parte de la clave. El sistema
+admite las dos formas:
+
+```
+SMTP_CLAVE=abcdefghijklmnop
+SMTP_CLAVE=abcd efgh ijkl mnop
+```
+
+Lo que **no** debe hacer es rodearla de comillas ni de signos de menor y
+mayor.
+
+### Paso 4. Verificar la configuración
+
+```powershell
+.\.venv\Scripts\python.exe scripts\verificar_entorno.py
+```
+
+La sección de correo debe figurar como configurada. Si informa que falta el
+servidor, revise que el archivo se llame `.env` y no `.env.txt`.
+
+### El sistema funciona sin esto
+
+Si no configura el correo, el circuito de consulta sigue operando: las
+consultas se registran, quedan asociadas al caso y el profesional puede
+responder dentro del sistema. Lo único que no ocurre es el envío del aviso,
+y la pantalla lo informa con el motivo.
+
+Registrar la consulta y enviar el aviso son dos operaciones separadas a
+propósito. Una consulta registrada y no notificada es un estado legítimo y
+visible. Una consulta perdida porque el servidor de correo rechazó la
+contraseña, no.
+
+---
+
+## 8. Verificar la instalación
 
 Este paso no es opcional. Comprueba cada componente por separado y nombra
 con precisión lo que falte.
@@ -245,7 +532,16 @@ El sistema es operativo.
 | `[ ERR ]` | Falta algo necesario. Resuélvalo antes de continuar |
 
 Las advertencias sobre `sentence_transformers` y sobre el reconocimiento
-óptico son esperables y no impiden nada.
+óptico son esperables y no impiden nada: corresponden a las capacidades
+opcionales del [apartado 12](#12-capacidades-opcionales-adicionales).
+
+Si instaló Ollama y configuró el correo según los apartados 5 a 7, esas dos
+secciones del informe deben figurar como correctas. Para comprobar además
+que el modelo responde de verdad:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\verificar_entorno.py --modelos
+```
 
 Para una verificación más exhaustiva, que incluye una consulta real a
 ClinicalTrials.gov:
@@ -265,7 +561,7 @@ contundente de confirmar que la instalación quedó íntegra.
 
 ---
 
-## 6. Ejecutar el sistema
+## 9. Ejecutar el sistema
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run app\Inicio.py
@@ -302,7 +598,7 @@ con PBKDF2 y nunca en texto plano.
 
 ---
 
-## 7. Cargar un caso
+## 10. Cargar un caso
 
 El sistema no incluye un selector de casos de ejemplo: la carga es siempre
 manual, como lo será en uso real.
@@ -331,90 +627,35 @@ previamente a `.docx` o a PDF.
 
 ---
 
-## 8. Modelo de lenguaje local, opcional
+## 11. Enviar una consulta a un profesional
 
-**El sistema funciona sin esto.** Sin modelo de lenguaje genera los
-resúmenes mediante reglas deterministas, que producen un texto menos fluido
-pero reproducible y auditable.
+Comprobación de punta a punta del circuito de consulta. Conviene hacerla
+una vez, con su propia dirección de correo como destinataria.
 
-Ollama ejecuta el modelo en el propio equipo. No requiere clave de API ni
-medio de pago, y la documentación clínica no abandona la máquina, lo que
-resuelve por construcción la objeción de confidencialidad que pesa sobre
-cualquier servicio remoto.
+1. Procese un caso, según el apartado anterior
+2. Vaya a **Consultas a profesionales**
+3. Complete el formulario:
+   - **Nombre del profesional**: su nombre
+   - **Correo electrónico**: su propia dirección, para recibir el aviso
+   - **Especialidad**: por ejemplo, Anatomía patológica
+4. Pulse **Registrar consulta y enviar aviso**
 
-### Instalación
+Si el correo está bien configurado, la pantalla confirma el envío y el
+mensaje llega en segundos. Revise la carpeta de correo no deseado la
+primera vez.
 
-1. Descargue el instalador desde <https://ollama.com/download>
-2. Ejecútelo. En Windows se instala para el usuario actual y queda
-   corriendo como un ícono en la bandeja del sistema, junto al reloj.
-3. **Cierre la terminal y abra una nueva.** Windows lee las rutas de
-   programas al abrir la terminal, de modo que una ventana abierta antes de
-   la instalación no reconocerá el comando.
-4. Compruebe que responde:
+Si el envío falla, la consulta **queda registrada igualmente** y la
+pantalla informa el motivo con un botón para reintentar. Los motivos más
+frecuentes están en el [apartado 14](#14-solución-de-problemas).
 
-```powershell
-ollama --version
-```
-
-5. Descargue un modelo. Es una sola vez:
-
-```powershell
-ollama pull llama3.2:3b
-```
-
-### Configuración
-
-Copie el archivo de ejemplo y edítelo:
-
-```powershell
-copy .env.example .env
-```
-
-En macOS y Linux: `cp .env.example .env`
-
-Abra `.env` con cualquier editor de texto y deje estas dos líneas así:
-
-```
-PROVEEDOR_LLM=ollama
-CLAVE_API_LLM=
-```
-
-Sin comillas, sin signos de menor y mayor, y sin espacios alrededor del
-signo igual. La clave queda vacía porque la ejecución local no requiere
-credencial.
-
-### Verificación
-
-```powershell
-.\.venv\Scripts\python.exe scripts\verificar_entorno.py --modelos
-```
-
-Debe responder que el modelo `llama3.2:3b` contesta correctamente.
-
-### Elección del modelo según la memoria del equipo
-
-| Modelo | Descarga | Memoria recomendada |
-|---|---|---|
-| `llama3.2:3b` | 2,0 GB | 8 GB |
-| `qwen2.5:7b` | 4,7 GB | 16 GB |
-| `llama3.1:8b` | 4,7 GB | 16 GB |
-
-Conviene empezar por el más liviano. Un modelo mayor mejora la redacción,
-no la exactitud: los datos estructurados los extraen las reglas
-deterministas y no el modelo.
-
-Para cambiar de modelo, descárguelo con `ollama pull` y consigne su nombre
-en `MODELO_LLM` dentro de `.env`.
-
-### Nota sobre la primera consulta
-
-La primera vez que se procesa un caso, el modelo se carga de disco a
-memoria. Puede demorar entre uno y dos minutos. Las consultas siguientes
-son sensiblemente más rápidas.
+La especialidad que elija determina qué sección del resumen se resalta para
+ese profesional: el patólogo ve destacados los hallazgos
+anatomopatológicos, el imagenólogo los imagenológicos. Recibe el caso
+completo, porque una sección aislada no admite lectura clínica.
 
 ---
 
-## 9. Capacidades opcionales adicionales
+## 12. Capacidades opcionales adicionales
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-opcionales.txt
@@ -446,7 +687,7 @@ en silencio.
 
 ---
 
-## 10. Instalación sin conexión
+## 13. Instalación sin conexión
 
 Procedimiento para instalar en una máquina con red lenta, restringida o sin
 conexión. Se prepara con antelación en una máquina que sí tenga internet.
@@ -499,7 +740,7 @@ evita volver a descargar los 2 GB del modelo.
 
 ---
 
-## 11. Solución de problemas
+## 14. Solución de problemas
 
 Los errores están ordenados por frecuencia. Cada uno incluye su causa, no
 solo la solución, de modo que sea posible reconocerlo si reaparece de otra
@@ -634,37 +875,97 @@ lee. La verificación del entorno lo informa como advertencia.
 
 **Solución.** `.\.venv\Scripts\python.exe -m pip install python-dotenv`
 
+### `El servidor de correo rechazó las credenciales`
+
+**Causa.** En `SMTP_CLAVE` está la contraseña de la cuenta de Google y no
+una contraseña de aplicación. Gmail no admite la contraseña de la cuenta
+para conexiones SMTP.
+
+**Solución.** Genere una contraseña de aplicación siguiendo el
+[apartado 7](#7-configurar-el-envío-de-correo) y reemplace el valor.
+
+Verifique también que no haya comillas ni signos de menor y mayor
+alrededor de la clave.
+
+### `Sin servidor de correo configurado`
+
+**Causa.** Falta completar `SMTP_SERVIDOR` o `SMTP_REMITENTE` en el archivo
+`.env`, o el archivo no se está leyendo.
+
+**Solución.** Compruebe que el archivo se llame exactamente `.env`. El
+Bloc de notas suele guardarlo como `.env.txt`:
+
+```powershell
+dir .env*
+```
+
+Si aparece `.env.txt`, renómbrelo con `ren .env.txt .env`.
+
+Compruebe además que `python-dotenv` esté instalado. La verificación del
+entorno lo informa como advertencia si falta.
+
+### `Cada consulta admite un único destinatario`
+
+**Causa.** Escribió más de una dirección en el campo de correo, o usó el
+formato `Nombre <direccion@dominio.com>`.
+
+**Solución.** Consigne una sola dirección, sin nombre y sin signos de menor
+y mayor. Para consultar a varios profesionales, registre una consulta por
+cada uno.
+
+Es una restricción deliberada: una revisión responde a una persona
+identificada, y la difusión a terceros no declarados carece de
+justificación asistencial.
+
+### El aviso no llega al destinatario
+
+**Causa.** Lo más frecuente es que haya caído en correo no deseado.
+
+**Solución.** Revise esa carpeta. Si tampoco está, compruebe en la pantalla
+de consultas que el envío figure como realizado: si falló, el sistema lo
+informa con el motivo y ofrece reintentar.
+
 ### El antivirus bloquea la instalación
 
 **Causa.** Algunos antivirus corporativos inspeccionan los paquetes que
 descarga `pip` y abortan la conexión.
 
 **Solución.** Use la instalación sin conexión del
-[apartado 10](#10-instalación-sin-conexión), que no requiere que la máquina
+[apartado 13](#13-instalación-sin-conexión), que no requiere que la máquina
 de destino descargue nada.
 
 ---
 
-## 12. Lista de comprobación previa a una demostración
+## 15. Lista de comprobación previa a una demostración
 
 ### Con una semana de antelación
 
 - [ ] Instalar y verificar en la máquina que se va a usar
+- [ ] Instalar Ollama y descargar el modelo
+- [ ] Configurar el archivo `.env` con el modelo y el correo
 - [ ] Ejecutar la suite de pruebas: deben pasar las 319
 - [ ] Procesar al menos dos casos de principio a fin
-- [ ] Preparar el pendrive con el paquete sin conexión del apartado 10
+- [ ] Enviar una consulta de prueba a su propia dirección y confirmar que
+      llega
+- [ ] Preparar el pendrive con el paquete sin conexión del
+      [apartado 13](#13-instalación-sin-conexión), incluida la carpeta
+      `.ollama` con el modelo
 - [ ] Confirmar si el equipo del lugar admite conectar una notebook propia
 
 ### El día anterior
 
 - [ ] Volver a ejecutar `verificar_entorno.py --completo`
+- [ ] Ejecutar `verificar_entorno.py --modelos` y confirmar que el modelo
+      responde
 - [ ] Procesar un caso completo y dejarlo cargado en el sistema
-- [ ] Si va a usar Ollama, procesar un caso para que el modelo quede
-      cargado en memoria
+- [ ] Procesar un caso con el modelo activo, para que quede cargado en
+      memoria y la primera consulta del día no demore
 - [ ] Anotar las credenciales de ingreso
+- [ ] Verificar que la contraseña de aplicación de Google siga vigente
 
 ### Momentos antes
 
+- [ ] Comprobar que Ollama esté corriendo: `ollama list`
 - [ ] Abrir la terminal y dejar el sistema corriendo
 - [ ] Ingresar con un usuario y dejar la sesión iniciada
 - [ ] Tener el caso ya procesado en pantalla
